@@ -185,6 +185,8 @@ prop_convt *bmct::solver_factory()
 
 /*******************************************************************\
 
+Abstraction Refinement Main Function
+
 Function: bmct::decide_default
 
   Inputs:
