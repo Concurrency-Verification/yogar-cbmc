@@ -23,6 +23,7 @@ Author: Daniel Kroening, kroening@kroening.com
 #endif
 
 #include "cbmc_parseoptions.h"
+#include "../../../../../../usr/include/c++/7/iostream"
 
 /*******************************************************************\
 

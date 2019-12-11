@@ -1,3 +1,0 @@
-"int __abs(int);\n"
-"void __builtin_va_info();\n"
-"__CPROVER_size_t __builtin_force_const(__CPROVER_size_t);\n"

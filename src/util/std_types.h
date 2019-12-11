@@ -1180,6 +1180,14 @@ public:
   void set_to(const mp_integer &to);
 };
 
+// __FHY_ADD_BEGIN__
+class oc_typet: public typet
+{
+public:
+  inline oc_typet():typet(ID_oc){}
+};
+// __FHY_ADD_END__
+
 /*! \brief Cast a generic typet to a \ref range_typet
  *
  * This is an unchecked conversion. \a type must be known to be \ref
@@ -1218,6 +1226,8 @@ public:
   }
 
 };
+
+
 
 /*! \brief Cast a generic typet to a \ref vector_typet
  *

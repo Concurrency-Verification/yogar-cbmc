@@ -3,7 +3,8 @@
 
 int x = 0;
 int y = 0;
-int r1=0,r2=0;
+int r1=0;
+int r2=0;
 
 void* thr1(void* arg){
     r1 = x;

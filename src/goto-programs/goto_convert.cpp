@@ -2515,8 +2515,10 @@ void goto_convertt::update_for_unwind_limit(const code_fort &code)
 	exprt op1 = code.op1();
 	exprt op2 = code.op2();
 
+  // printf("op0: %s op1: %s op2: %s\n", op0.id().c_str(), op1.id().c_str(), op2.id().c_str());
 	if (op1.id() != ID_lt && op1.id() != ID_le && op1.id() != ID_gt && op1.id() != ID_ge)
 		return;
+  
 	std::string type_str, value_str;
 	if (op1.op1().id() == ID_symbol) {
 		const symbolt &symbol=ns.lookup(to_symbol_expr(op1.op1()).get_identifier());

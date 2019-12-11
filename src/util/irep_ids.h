@@ -649,5 +649,5 @@
 #define ID_L2 dstring(644, 0)
 #define ID_already_typechecked dstring(645, 0)
 #define ID_C_va_arg_type dstring(646, 0) // #va_arg_type
-
+#define ID_oc dstring(647, 0)
 #endif

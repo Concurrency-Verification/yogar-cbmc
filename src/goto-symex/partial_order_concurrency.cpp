@@ -300,11 +300,12 @@ Function: partial_order_concurrencyt::build_clock_type
 void partial_order_concurrencyt::build_clock_type(
   const symex_target_equationt &equation)
 {
-  assert(!numbering.empty());
+  // assert(!numbering.empty());
 
-  mp_integer width=address_bits(numbering.size());
-  assert(width<std::numeric_limits<unsigned>::max());
-  clock_type=unsignedbv_typet(integer2unsigned(width));
+  // mp_integer width=address_bits(numbering.size());
+  // assert(width<std::numeric_limits<unsigned>::max());
+  // clock_type=unsignedbv_typet(integer2unsigned(width));
+  clock_type = integer_typet();
 }
 
 /*******************************************************************\

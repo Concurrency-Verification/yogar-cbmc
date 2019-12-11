@@ -896,7 +896,7 @@ void smt2_convt::convert_literal(const literalt l)
     if(l.sign())
       out << "(not ";
 
-    out << "B" << l.var_no();
+    out << "|B" << l.var_no() << "|";
   
     if(l.sign())
       out << ")";  
@@ -1159,13 +1159,23 @@ void smt2_convt::convert_expr(const exprt &expr)
     assert(expr.type().id()==ID_bool);
     assert(expr.operands().size()>=2);
 
+    // __FHY_ADD_BEGIN__
     out << "(" << expr.id();
-    forall_operands(it, expr)
-    {
-      out << " ";
-      convert_expr(*it);
+    for(auto it = expr.operands().rbegin(); it != expr.operands().rend(); ++it){
+    	out << " ";
+    	if(it->id() == ID_ge && it->op0().type().id() == ID_oc){
+    		assert(it->op1().type().id() == ID_oc);
+    		out << "(not ";
+    		convert_expr(*it);
+    		out << ")";
+    	}
+    	else{
+    		convert_expr(*it);
+    	}
     }
     out << ")";
+	// __FHY_ADD_END__
+
   }
   else if(expr.id()==ID_implies)
   {
@@ -1183,26 +1193,41 @@ void smt2_convt::convert_expr(const exprt &expr)
     assert(expr.type().id()==ID_bool);
     assert(expr.operands().size()==1);
 
-    out << "(not ";
-    convert_expr(expr.op0());
-    out << ")";
+    // __FHY_ADD_BEGIN__
+    if(expr.op0().id() == ID_ge && expr.op0().op0().type().id() == ID_oc){
+    	convert_expr(expr.op0());
+    } else{
+      out << "(not ";
+		  convert_expr(expr.op0());
+		  out << ")";
+    }
+    // __FHY_ADD_END__
   }
-  else if(expr.id()==ID_equal ||
-          expr.id()==ID_notequal)
-  {
-    assert(expr.operands().size()==2);
-    assert(base_type_eq(expr.op0().type(), expr.op1().type(), ns));
+  // __FHY_ADD_BEGIN__
+  else if(expr.id() == ID_equal){
+    const equal_exprt &equal_expr = to_equal_expr(expr);
+    assert(equal_expr.operands().size()==2);
+    assert(base_type_eq(equal_expr.op0().type(), equal_expr.op1().type(), ns));
 
-    if(expr.id()==ID_notequal)
-    {
-      out << "(not (= ";
+    if(expr.op0().type().id() == ID_oc){
+    	assert(expr.op1().type().id() == ID_oc);
+    	out << "(and ";
+    	
+    	out << "(not ";
+    	out << "(oclt ";
       convert_expr(expr.op0());
       out << " ";
       convert_expr(expr.op1());
-      out << "))";
+      out << ")) ";
+
+      out << "(not ";
+      out << "(oclt ";
+      convert_expr(expr.op1());
+      out << " ";
+      convert_expr(expr.op0());
+      out << ")))";
     }
-    else
-    {
+    else{
       out << "(= ";
       convert_expr(expr.op0());
       out << " ";
@@ -1210,6 +1235,60 @@ void smt2_convt::convert_expr(const exprt &expr)
       out << ")";
     }
   }
+  else if (expr.id() == ID_notequal){
+    const notequal_exprt &notequal_expr = to_notequal_expr(expr);
+    assert(notequal_expr.operands().size()==2);
+    assert(base_type_eq(notequal_expr.op0().type(), notequal_expr.op1().type(), ns));
+
+    if(expr.op0().type().id() == ID_oc){
+        assert(expr.op1().type().id() == ID_oc);
+        out << "(or ";
+
+        out << "(oclt ";
+        convert_expr(notequal_expr.op0());
+        out << " ";
+        convert_expr(notequal_expr.op1());
+        out << ")";
+
+        out << "(oclt ";
+        convert_expr(notequal_expr.op1());
+        out << " ";
+        convert_expr(notequal_expr.op0());
+        out << "))";
+    }
+    else{
+        out << "(not (= ";
+        convert_expr(notequal_expr.op0());
+        out << " ";
+        convert_expr(notequal_expr.op1());
+        out << "))";
+    }
+  }
+  // __FHY_ADD_END__
+
+  // else if(expr.id()==ID_equal ||
+  //         expr.id()==ID_notequal)
+  // {
+  //   assert(expr.operands().size()==2);
+  //   assert(base_type_eq(expr.op0().type(), expr.op1().type(), ns));
+
+  //   if(expr.id()==ID_notequal)
+  //   {
+  //     out << "(not (= ";
+  //     convert_expr(expr.op0());
+  //     out << " ";
+  //     convert_expr(expr.op1());
+  //     out << "))";
+  //   }
+  //   else
+  //   {
+  //     out << "(= ";
+  //     convert_expr(expr.op0());
+  //     out << " ";
+  //     convert_expr(expr.op1());
+  //     out << ")";
+  //   }
+  // }
   else if(expr.id()==ID_ieee_float_equal ||
           expr.id()==ID_ieee_float_notequal)
   {
@@ -1253,6 +1332,13 @@ void smt2_convt::convert_expr(const exprt &expr)
           expr.id()==ID_ge ||
           expr.id()==ID_gt)
   {
+    // __FHY_ADD_BEGIN__
+  	if(expr.op0().type().id() == ID_oc){
+  		if(expr.id() != ID_lt && expr.id() != ID_ge){
+        fprintf(stderr, "Oc type error.\n");
+  		}
+  	}
+  	// __FHY_ADD_END__
     convert_relation(expr);
   }
   else if(expr.id()==ID_plus)
@@ -2891,6 +2977,15 @@ void smt2_convt::convert_relation(const exprt &expr)
     out << " ";
     convert_expr(expr.op1());
   }
+  // __FHY_ADD_BEGIN__
+  else if(op_type.id() == ID_oc){
+    assert(expr.id() == ID_lt || expr.id() == ID_ge);
+	  out << "oclt ";
+	  convert_expr(expr.op0());
+	  out << " ";
+	  convert_expr(expr.op1());
+  }
+  // __FHY_ADD_END__
   else if(op_type.id()==ID_floatbv)
   {
     if(use_FPA_theory)
@@ -4317,9 +4412,19 @@ void smt2_convt::set_to(const exprt &expr, bool value)
 
   if(!value)
   {
-    out << "(not ";
-    convert_expr(expr);
-    out << ")";
+    // out << "(not ";
+    // convert_expr(expr);
+    // out << ")";
+    // __FHY_ADD_BEGIN__
+    if(expr.id() == ID_ge && expr.op0().type().id() == ID_oc){
+      convert_expr(expr);
+    }
+    else{
+      out << "(not ";
+		  convert_expr(expr);
+		  out << ")";
+    }
+    // __FHY_ADD_END__
   }
   else
     convert_expr(expr);
@@ -4658,6 +4763,10 @@ void smt2_convt::convert_type(const typet &type)
       out << "(_ BitVec " << width << ")";
     }
   }
+  // __FHY_ADD_BEGIN__
+  else if(type.id() == ID_oc)
+	  out << "Oc";
+  // __FHY_ADD_END__
   else
   {
     throw "unsupported type: "+type.id_string();
