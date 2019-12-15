@@ -1,288 +1,252 @@
 
 Counterexample:
 
-State 4 file ../fib_bench_false-unreach-call.i line 635 thread 0
+State 4 file <built-in-additions> line 35 thread 0
 ----------------------------------------------------
-  i=1 (00000000000000000000000000000001)
+  __CPROVER_memory_leak=(assignment removed)
 
-State 6 file <built-in-additions> line 78 thread 0
+State 5 file <built-in-additions> line 57 thread 0
 ----------------------------------------------------
-  __CPROVER_pipe_count=__CPROVER_pipe_count#1 (?)
+  __CPROVER_rounding_mode=(assignment removed)
 
-State 8 file ../fib_bench_false-unreach-call.i line 635 thread 0
+State 7 file <built-in-additions> line 78 thread 0
 ----------------------------------------------------
-  j=1 (00000000000000000000000000000001)
+  __CPROVER_pipe_count=(assignment removed)
 
-State 9 file <built-in-additions> line 21 thread 0
+State 9 file ../pthread_test.c line 13 thread 0
 ----------------------------------------------------
-  __CPROVER_thread_id=__CPROVER_thread_id!0#1 (?)
+  a=0 (00000000000000000000000000000000)
 
-State 11 file <built-in-additions> line 22 thread 0
+State 11 file ../pthread_test.c line 13 thread 0
 ----------------------------------------------------
-  __CPROVER_threads_exited=__CPROVER_threads_exited#1 (?)
+  b=0 (00000000000000000000000000000000)
 
-State 13 file <built-in-additions> line 23 thread 0
+State 12 file <built-in-additions> line 21 thread 0
 ----------------------------------------------------
-  __CPROVER_next_thread_id=__CPROVER_next_thread_id#1 (?)
+  __CPROVER_thread_id=(assignment removed)
 
-State 15 file <built-in-additions> line 30 thread 0
+State 14 file <built-in-additions> line 22 thread 0
 ----------------------------------------------------
-  __CPROVER_deallocated=__CPROVER_deallocated#1 (?)
+  __CPROVER_threads_exited=ARRAY_OF(FALSE) (?)
 
-State 17 file <built-in-additions> line 31 thread 0
+State 16 file <built-in-additions> line 23 thread 0
 ----------------------------------------------------
-  __CPROVER_dead_object=__CPROVER_dead_object#1 (?)
+  __CPROVER_next_thread_id=0 (00000000000000000000000000000000)
 
-State 19 file <built-in-additions> line 32 thread 0
+State 18 file <built-in-additions> line 30 thread 0
 ----------------------------------------------------
-  __CPROVER_malloc_object=__CPROVER_malloc_object#1 (?)
+  __CPROVER_deallocated=(assignment removed)
 
-State 21 file <built-in-additions> line 33 thread 0
+State 20 file <built-in-additions> line 31 thread 0
 ----------------------------------------------------
-  __CPROVER_malloc_size=__CPROVER_malloc_size#1 (?)
+  __CPROVER_dead_object=(assignment removed)
 
-State 23 file <built-in-additions> line 34 thread 0
+State 22 file <built-in-additions> line 32 thread 0
 ----------------------------------------------------
-  __CPROVER_malloc_is_new_array=__CPROVER_malloc_is_new_array#1 (?)
+  __CPROVER_malloc_object=(assignment removed)
 
-State 25 file <built-in-additions> line 35 thread 0
+State 24 file <built-in-additions> line 33 thread 0
 ----------------------------------------------------
-  __CPROVER_memory_leak=__CPROVER_memory_leak#1 (?)
+  __CPROVER_malloc_size=(assignment removed)
 
-State 26 file <built-in-additions> line 57 thread 0
+State 26 file <built-in-additions> line 34 thread 0
 ----------------------------------------------------
-  __CPROVER_rounding_mode=__CPROVER_rounding_mode!0#1 (?)
+  __CPROVER_malloc_is_new_array=(assignment removed)
 
-State 31  thread 0
+State 30 file ../pthread_test.c line 51 function main thread 0
 ----------------------------------------------------
-  argv'[2]=argv'#1[2] (?)
+  a_in=(assignment removed)
 
-State 34 file ../fib_bench_false-unreach-call.i line 653 thread 0
+State 31 file ../pthread_test.c line 51 function main thread 0
 ----------------------------------------------------
-  argc=argc!0@1#1 (?)
+  a_in=(assignment removed)
 
-State 35 file ../fib_bench_false-unreach-call.i line 653 thread 0
+State 32 file ../pthread_test.c line 52 function main thread 0
 ----------------------------------------------------
-  argv=argv!0@1#1 (?)
+  b_in=(assignment removed)
 
-State 36 file ../fib_bench_false-unreach-call.i line 655 function main thread 0
+State 33 file ../pthread_test.c line 52 function main thread 0
 ----------------------------------------------------
-  id1=id1!0@1#1 (?)
+  b_in=(assignment removed)
 
-State 37 file ../fib_bench_false-unreach-call.i line 655 function main thread 0
+State 34 file ../pthread_test.c line 56 function main thread 0
 ----------------------------------------------------
-  id2=id2!0@1#1 (?)
+  return_value_start$1=(assignment removed)
 
-State 40 file ../fib_bench_false-unreach-call.i line 656 function main thread 0
+State 37 file ../pthread_test.c line 56 function main thread 0
 ----------------------------------------------------
-  thread=thread!0@1#1 (?)
+  a_in=(assignment removed)
 
-State 41 file ../fib_bench_false-unreach-call.i line 656 function main thread 0
+State 38 file ../pthread_test.c line 56 function main thread 0
 ----------------------------------------------------
-  attr=attr!0@1#1 (?)
+  b_in=(assignment removed)
 
-State 42 file ../fib_bench_false-unreach-call.i line 656 function main thread 0
+State 40 file ../pthread_test.c line 32 function start thread 0
 ----------------------------------------------------
-  start_routine=start_routine!0@1#1 (?)
+  a=8 (00000000000000000000000000001000)
 
-State 43 file ../fib_bench_false-unreach-call.i line 656 function main thread 0
+State 42 file ../pthread_test.c line 33 function start thread 0
 ----------------------------------------------------
-  arg=arg!0@1#1 (?)
+  b=6 (00000000000000000000000000000110)
 
-State 44 file <builtin-library>-pthread_create line 33 function pthread_create thread 0
+State 43 file ../pthread_test.c line 34 function start thread 0
 ----------------------------------------------------
-  this_thread_id=this_thread_id!0@1#1 (?)
+  t1=(assignment removed)
 
-State 46 file <builtin-library>-pthread_create line 35 function pthread_create thread 0
+State 44 file ../pthread_test.c line 34 function start thread 0
 ----------------------------------------------------
-  __CPROVER_next_thread_id=__CPROVER_next_thread_id#2 (?)
+  t2=(assignment removed)
 
-State 47 file <builtin-library>-pthread_create line 35 function pthread_create thread 0
+State 47 file ../pthread_test.c line 35 function start thread 0
 ----------------------------------------------------
-  this_thread_id=this_thread_id!0@1#2 (?)
+  thread=(assignment removed)
 
-State 50 file <builtin-library>-pthread_create line 44 function pthread_create thread 0
+State 48 file ../pthread_test.c line 35 function start thread 0
 ----------------------------------------------------
-  id1=id1!0@1#2 (?)
+  attr=(assignment removed)
 
-State 54 file <builtin-library>-pthread_create line 49 function pthread_create thread 0
+State 49 file ../pthread_test.c line 35 function start thread 0
 ----------------------------------------------------
-  start_routine=start_routine!0@1#1 (?)
+  start_routine=(assignment removed)
 
-State 55 file <builtin-library>-pthread_create line 49 function pthread_create thread 0
+State 50 file ../pthread_test.c line 35 function start thread 0
 ----------------------------------------------------
-  arg=arg!0@1#1 (?)
+  arg=(assignment removed)
 
-State 56 file <builtin-library>-pthread_create line 49 function pthread_create thread 0
+State 51 file <builtin-library>-pthread_create line 33 function pthread_create thread 0
 ----------------------------------------------------
-  id=id!0@1#1 (?)
+  this_thread_id=(assignment removed)
 
-State 63 file ../fib_bench_false-unreach-call.i line 657 function main thread 0
+State 53 file <builtin-library>-pthread_create line 35 function pthread_create thread 0
 ----------------------------------------------------
-  thread=thread!0@2#1 (?)
+  __CPROVER_next_thread_id=1 (00000000000000000000000000000001)
 
-State 64 file ../fib_bench_false-unreach-call.i line 657 function main thread 0
+State 54 file <builtin-library>-pthread_create line 35 function pthread_create thread 0
 ----------------------------------------------------
-  attr=attr!0@2#1 (?)
+  this_thread_id=(assignment removed)
 
-State 65 file ../fib_bench_false-unreach-call.i line 657 function main thread 0
+State 57 file <builtin-library>-pthread_create line 44 function pthread_create thread 0
 ----------------------------------------------------
-  start_routine=start_routine!0@2#1 (?)
+  t1=(assignment removed)
 
-State 66 file ../fib_bench_false-unreach-call.i line 657 function main thread 0
+State 61 file <builtin-library>-pthread_create line 49 function pthread_create thread 0
 ----------------------------------------------------
-  arg=arg!0@2#1 (?)
+  start_routine=(assignment removed)
 
-State 67 file <builtin-library>-pthread_create line 33 function pthread_create thread 0
+State 62 file <builtin-library>-pthread_create line 49 function pthread_create thread 0
 ----------------------------------------------------
-  this_thread_id=this_thread_id!0@2#1 (?)
+  arg=(assignment removed)
 
-State 69 file <builtin-library>-pthread_create line 35 function pthread_create thread 0
+State 63 file <builtin-library>-pthread_create line 49 function pthread_create thread 0
 ----------------------------------------------------
-  __CPROVER_next_thread_id=__CPROVER_next_thread_id#5 (?)
+  id=(assignment removed)
 
-State 70 file <builtin-library>-pthread_create line 35 function pthread_create thread 0
+State 70 file ../pthread_test.c line 36 function start thread 0
 ----------------------------------------------------
-  this_thread_id=this_thread_id!0@2#2 (?)
+  thread=(assignment removed)
 
-State 74 file <builtin-library>-pthread_create line 44 function pthread_create thread 0
+State 71 file ../pthread_test.c line 36 function start thread 0
 ----------------------------------------------------
-  id2=id2!0@1#2 (?)
+  attr=(assignment removed)
 
-State 78 file <builtin-library>-pthread_create line 49 function pthread_create thread 0
+State 72 file ../pthread_test.c line 36 function start thread 0
 ----------------------------------------------------
-  start_routine=start_routine!0@2#1 (?)
+  start_routine=(assignment removed)
 
-State 79 file <builtin-library>-pthread_create line 49 function pthread_create thread 0
+State 73 file ../pthread_test.c line 36 function start thread 0
 ----------------------------------------------------
-  arg=arg!0@2#1 (?)
+  arg=(assignment removed)
 
-State 80 file <builtin-library>-pthread_create line 49 function pthread_create thread 0
+State 74 file <builtin-library>-pthread_create line 33 function pthread_create thread 0
 ----------------------------------------------------
-  id=id!0@2#1 (?)
+  this_thread_id=(assignment removed)
+
+State 76 file <builtin-library>-pthread_create line 35 function pthread_create thread 0
+----------------------------------------------------
+  __CPROVER_next_thread_id=1 (00000000000000000000000000000001)
+
+State 77 file <builtin-library>-pthread_create line 35 function pthread_create thread 0
+----------------------------------------------------
+  this_thread_id=1 (00000000000000000000000000000001)
+
+State 81 file <builtin-library>-pthread_create line 44 function pthread_create thread 0
+----------------------------------------------------
+  t2=1 (00000000000000000000000000000001)
+
+State 85 file <builtin-library>-pthread_create line 49 function pthread_create thread 0
+----------------------------------------------------
+  start_routine=(assignment removed)
+
+State 86 file <builtin-library>-pthread_create line 49 function pthread_create thread 0
+----------------------------------------------------
+  arg=(assignment removed)
+
+State 87 file <builtin-library>-pthread_create line 49 function pthread_create thread 0
+----------------------------------------------------
+  id=1 (00000000000000000000000000000001)
+
+State 94 file ../pthread_test.c line 37 function start thread 0
+----------------------------------------------------
+  thread=(assignment removed)
+
+State 95 file ../pthread_test.c line 37 function start thread 0
+----------------------------------------------------
+  value_ptr=(assignment removed)
+
+State 102 file ../pthread_test.c line 38 function start thread 0
+----------------------------------------------------
+  thread=1 (00000000000000000000000000000001)
+
+State 103 file ../pthread_test.c line 38 function start thread 0
+----------------------------------------------------
+  value_ptr=(assignment removed)
+
+State 111 file ../pthread_test.c line 56 function main thread 0
+----------------------------------------------------
+  return_value_start$1=8 (00000000000000000000000000001000)
+
+State 114 file ../pthread_test.c line 56 function main thread 0
+----------------------------------------------------
+  a_in=(assignment removed)
+
+State 115 file ../pthread_test.c line 56 function main thread 0
+----------------------------------------------------
+  b_in=(assignment removed)
+
+State 116 file ../pthread_test.c line 56 function main thread 0
+----------------------------------------------------
+  gcd=8 (00000000000000000000000000001000)
+
+State 119 file ../pthread_test.c line 43 function check_gcd thread 0
+----------------------------------------------------
+  cond=0 (00000000000000000000000000000000)
 
 Violated property:
-  file ../fib_bench_false-unreach-call.i line 659 function main
+  file ../pthread_test.c line 7 function __VERIFIER_assert
   assertion
   FALSE
 
 
-State 93 file <builtin-library>-pthread_create line 19 function __actual_thread_spawn thread 1
+State 128 file <builtin-library>-pthread_create line 19 function __actual_thread_spawn thread 1
 ----------------------------------------------------
-  __CPROVER_thread_id=__CPROVER_thread_id!1#2 (?)
+  __CPROVER_thread_id=(assignment removed)
 
-State 97 file <builtin-library>-pthread_create line 20 function __actual_thread_spawn thread 1
+State 132 file <builtin-library>-pthread_create line 20 function __actual_thread_spawn thread 1
 ----------------------------------------------------
-  arg=arg!1@1#1 (?)
+  arg=(assignment removed)
 
-State 98 file ../fib_bench_false-unreach-call.i line 639 function t1 thread 1
+State 142 file <builtin-library>-pthread_create line 23 function __actual_thread_spawn thread 1
 ----------------------------------------------------
-  k=k!1@1#1 (?)
+  __CPROVER_threads_exited[(int)id!1@0]=(assignment removed)
 
-State 99 file ../fib_bench_false-unreach-call.i line 639 function t1 thread 1
+State 143 file <builtin-library>-pthread_create line 19 function __actual_thread_spawn thread 2
 ----------------------------------------------------
-  k=k!1@1#2 (?)
+  __CPROVER_thread_id=(assignment removed)
 
-State 100 file ../fib_bench_false-unreach-call.i line 640 function t1 thread 1
+State 147 file <builtin-library>-pthread_create line 20 function __actual_thread_spawn thread 2
 ----------------------------------------------------
-  k=k!1@1#3 (?)
+  arg=(assignment removed)
 
-State 104 file ../fib_bench_false-unreach-call.i line 641 function t1 thread 1
+State 156 file <builtin-library>-pthread_create line 23 function __actual_thread_spawn thread 2
 ----------------------------------------------------
-  i=2 (00000000000000000000000000000010)
-
-State 105 file ../fib_bench_false-unreach-call.i line 640 function t1 thread 1
-----------------------------------------------------
-  k=k!1@1#4 (?)
-
-State 110 file ../fib_bench_false-unreach-call.i line 641 function t1 thread 1
-----------------------------------------------------
-  i=5 (00000000000000000000000000000101)
-
-State 111 file ../fib_bench_false-unreach-call.i line 640 function t1 thread 1
-----------------------------------------------------
-  k=k!1@1#5 (?)
-
-State 116 file ../fib_bench_false-unreach-call.i line 641 function t1 thread 1
-----------------------------------------------------
-  i=13 (00000000000000000000000000001101)
-
-State 117 file ../fib_bench_false-unreach-call.i line 640 function t1 thread 1
-----------------------------------------------------
-  k=k!1@1#6 (?)
-
-State 122 file ../fib_bench_false-unreach-call.i line 641 function t1 thread 1
-----------------------------------------------------
-  i=34 (00000000000000000000000000100010)
-
-State 123 file ../fib_bench_false-unreach-call.i line 640 function t1 thread 1
-----------------------------------------------------
-  k=k!1@1#7 (?)
-
-State 128 file ../fib_bench_false-unreach-call.i line 641 function t1 thread 1
-----------------------------------------------------
-  i=89 (00000000000000000000000001011001)
-
-State 129 file ../fib_bench_false-unreach-call.i line 640 function t1 thread 1
-----------------------------------------------------
-  k=k!1@1#8 (?)
-
-State 131 file <builtin-library>-pthread_create line 19 function __actual_thread_spawn thread 2
-----------------------------------------------------
-  __CPROVER_thread_id=__CPROVER_thread_id!2#2 (?)
-
-State 135 file <builtin-library>-pthread_create line 20 function __actual_thread_spawn thread 2
-----------------------------------------------------
-  arg=arg!2@1#1 (?)
-
-State 136 file ../fib_bench_false-unreach-call.i line 647 function t2 thread 2
-----------------------------------------------------
-  k=k!2@1#1 (?)
-
-State 137 file ../fib_bench_false-unreach-call.i line 647 function t2 thread 2
-----------------------------------------------------
-  k=k!2@1#2 (?)
-
-State 138 file ../fib_bench_false-unreach-call.i line 648 function t2 thread 2
-----------------------------------------------------
-  k=k!2@1#3 (?)
-
-State 142 file ../fib_bench_false-unreach-call.i line 649 function t2 thread 2
-----------------------------------------------------
-  j=3 (00000000000000000000000000000011)
-
-State 143 file ../fib_bench_false-unreach-call.i line 648 function t2 thread 2
-----------------------------------------------------
-  k=k!2@1#4 (?)
-
-State 148 file ../fib_bench_false-unreach-call.i line 649 function t2 thread 2
-----------------------------------------------------
-  j=8 (00000000000000000000000000001000)
-
-State 149 file ../fib_bench_false-unreach-call.i line 648 function t2 thread 2
-----------------------------------------------------
-  k=k!2@1#5 (?)
-
-State 154 file ../fib_bench_false-unreach-call.i line 649 function t2 thread 2
-----------------------------------------------------
-  j=21 (00000000000000000000000000010101)
-
-State 155 file ../fib_bench_false-unreach-call.i line 648 function t2 thread 2
-----------------------------------------------------
-  k=k!2@1#6 (?)
-
-State 160 file ../fib_bench_false-unreach-call.i line 649 function t2 thread 2
-----------------------------------------------------
-  j=55 (00000000000000000000000000110111)
-
-State 161 file ../fib_bench_false-unreach-call.i line 648 function t2 thread 2
-----------------------------------------------------
-  k=k!2@1#7 (?)
-
-State 166 file ../fib_bench_false-unreach-call.i line 649 function t2 thread 2
-----------------------------------------------------
-  j=144 (00000000000000000000000010010000)
-
-State 167 file ../fib_bench_false-unreach-call.i line 648 function t2 thread 2
-----------------------------------------------------
-  k=k!2@1#8 (?)
+  __CPROVER_threads_exited[(int)id!2@0]=(assignment removed)

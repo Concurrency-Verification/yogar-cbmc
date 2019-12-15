@@ -1,232 +1,124 @@
 
 Counterexample:
 
-State 4 file ./test.c line 4 thread 0
+State 4 file <built-in-additions> line 35 thread 0
 ----------------------------------------------------
-  x=0 (00000000000000000000000000000000)
+  __CPROVER_memory_leak=__CPROVER_memory_leak#1 (?)
 
-State 6 file ./test.c line 5 thread 0
+State 5 file <built-in-additions> line 57 thread 0
 ----------------------------------------------------
-  y=(assignment removed)
+  __CPROVER_rounding_mode=__CPROVER_rounding_mode!0#1 (?)
 
-State 8 file ./test.c line 6 thread 0
+State 7 file <built-in-additions> line 78 thread 0
 ----------------------------------------------------
-  r1=0 (00000000000000000000000000000000)
+  __CPROVER_pipe_count=__CPROVER_pipe_count#1 (?)
 
-State 10 file ./test.c line 7 thread 0
+State 9 file ./pthread_test.c line 13 thread 0
 ----------------------------------------------------
-  r2=0 (00000000000000000000000000000000)
+  a=a#1 (?)
 
-State 12 file <built-in-additions> line 30 thread 0
+State 11 file ./pthread_test.c line 13 thread 0
 ----------------------------------------------------
-  __CPROVER_deallocated=(assignment removed)
+  b=b#1 (?)
 
-State 14 file <built-in-additions> line 31 thread 0
+State 12 file <built-in-additions> line 21 thread 0
 ----------------------------------------------------
-  __CPROVER_dead_object=(assignment removed)
+  __CPROVER_thread_id=__CPROVER_thread_id!0#1 (?)
 
-State 16 file <built-in-additions> line 32 thread 0
+State 14 file <built-in-additions> line 22 thread 0
 ----------------------------------------------------
-  __CPROVER_malloc_object=(assignment removed)
+  __CPROVER_threads_exited=__CPROVER_threads_exited#1 (?)
 
-State 18 file <built-in-additions> line 33 thread 0
+State 16 file <built-in-additions> line 23 thread 0
 ----------------------------------------------------
-  __CPROVER_malloc_size=(assignment removed)
+  __CPROVER_next_thread_id=__CPROVER_next_thread_id#1 (?)
 
-State 20 file <built-in-additions> line 34 thread 0
+State 18 file <built-in-additions> line 30 thread 0
 ----------------------------------------------------
-  __CPROVER_malloc_is_new_array=(assignment removed)
+  __CPROVER_deallocated=__CPROVER_deallocated#1 (?)
 
-State 22 file <built-in-additions> line 35 thread 0
+State 20 file <built-in-additions> line 31 thread 0
 ----------------------------------------------------
-  __CPROVER_memory_leak=(assignment removed)
+  __CPROVER_dead_object=__CPROVER_dead_object#1 (?)
 
-State 23 file <built-in-additions> line 57 thread 0
+State 22 file <built-in-additions> line 32 thread 0
 ----------------------------------------------------
-  __CPROVER_rounding_mode=(assignment removed)
+  __CPROVER_malloc_object=__CPROVER_malloc_object#1 (?)
 
-State 25 file <built-in-additions> line 78 thread 0
+State 24 file <built-in-additions> line 33 thread 0
 ----------------------------------------------------
-  __CPROVER_pipe_count=(assignment removed)
+  __CPROVER_malloc_size=__CPROVER_malloc_size#1 (?)
 
-State 26 file <built-in-additions> line 21 thread 0
+State 26 file <built-in-additions> line 34 thread 0
 ----------------------------------------------------
-  __CPROVER_thread_id=(assignment removed)
+  __CPROVER_malloc_is_new_array=__CPROVER_malloc_is_new_array#1 (?)
 
-State 28 file <built-in-additions> line 22 thread 0
+State 30 file ./pthread_test.c line 51 function main thread 0
 ----------------------------------------------------
-  __CPROVER_threads_exited=ARRAY_OF(FALSE) (?)
+  a_in=a_in!0@1#1 (?)
 
-State 30 file <built-in-additions> line 23 thread 0
+State 31 file ./pthread_test.c line 51 function main thread 0
 ----------------------------------------------------
-  __CPROVER_next_thread_id=0 (00000000000000000000000000000000)
+  a_in=a_in!0@1#2 (?)
 
-State 35  thread 0
+State 32 file ./pthread_test.c line 52 function main thread 0
 ----------------------------------------------------
-  argv'[8192]=(assignment removed)
+  b_in=b_in!0@1#1 (?)
 
-State 38 file ./test.c line 19 thread 0
+State 33 file ./pthread_test.c line 52 function main thread 0
 ----------------------------------------------------
-  argc=(assignment removed)
+  b_in=b_in!0@1#2 (?)
 
-State 39 file ./test.c line 19 thread 0
+State 34 file ./pthread_test.c line 56 function main thread 0
 ----------------------------------------------------
-  argv=(assignment removed)
+  return_value_start$1=return_value_start$1!0@1#1 (?)
 
-State 40 file ./test.c line 20 function main thread 0
+State 37 file ./pthread_test.c line 56 function main thread 0
 ----------------------------------------------------
-  t1=(assignment removed)
+  a_in=a_in!0@1#1 (?)
 
-State 41 file ./test.c line 20 function main thread 0
+State 38 file ./pthread_test.c line 56 function main thread 0
 ----------------------------------------------------
-  t2=(assignment removed)
+  b_in=b_in!0@1#1 (?)
 
-State 44 file ./test.c line 22 function main thread 0
+State 40 file ./pthread_test.c line 32 function start thread 0
 ----------------------------------------------------
-  thread=(assignment removed)
+  a=a#2 (?)
 
-State 45 file ./test.c line 22 function main thread 0
+State 42 file ./pthread_test.c line 33 function start thread 0
 ----------------------------------------------------
-  attr=(assignment removed)
+  b=b#2 (?)
 
-State 46 file ./test.c line 22 function main thread 0
+State 43 file ./pthread_test.c line 34 function start thread 0
 ----------------------------------------------------
-  start_routine=(assignment removed)
+  t1=t1!0@1#1 (?)
 
-State 47 file ./test.c line 22 function main thread 0
+State 44 file ./pthread_test.c line 34 function start thread 0
 ----------------------------------------------------
-  arg=(assignment removed)
+  t2=t2!0@1#1 (?)
 
-State 48 file <builtin-library>-pthread_create line 33 function pthread_create thread 0
+State 51 file ./pthread_test.c line 56 function main thread 0
 ----------------------------------------------------
-  this_thread_id=(assignment removed)
+  return_value_start$1=return_value_start$1!0@1#2 (?)
 
-State 50 file <builtin-library>-pthread_create line 35 function pthread_create thread 0
+State 54 file ./pthread_test.c line 56 function main thread 0
 ----------------------------------------------------
-  __CPROVER_next_thread_id=1 (00000000000000000000000000000001)
+  a_in=a_in!0@1#1 (?)
 
-State 51 file <builtin-library>-pthread_create line 35 function pthread_create thread 0
+State 55 file ./pthread_test.c line 56 function main thread 0
 ----------------------------------------------------
-  this_thread_id=(assignment removed)
+  b_in=b_in!0@1#1 (?)
 
-State 54 file <builtin-library>-pthread_create line 44 function pthread_create thread 0
+State 56 file ./pthread_test.c line 56 function main thread 0
 ----------------------------------------------------
-  t1=(assignment removed)
+  gcd=gcd!0@1#1 (?)
 
-State 58 file <builtin-library>-pthread_create line 49 function pthread_create thread 0
+State 59 file ./pthread_test.c line 43 function check_gcd thread 0
 ----------------------------------------------------
-  start_routine=(assignment removed)
-
-State 59 file <builtin-library>-pthread_create line 49 function pthread_create thread 0
-----------------------------------------------------
-  arg=(assignment removed)
-
-State 60 file <builtin-library>-pthread_create line 49 function pthread_create thread 0
-----------------------------------------------------
-  id=(assignment removed)
-
-State 67 file ./test.c line 23 function main thread 0
-----------------------------------------------------
-  thread=(assignment removed)
-
-State 68 file ./test.c line 23 function main thread 0
-----------------------------------------------------
-  attr=(assignment removed)
-
-State 69 file ./test.c line 23 function main thread 0
-----------------------------------------------------
-  start_routine=(assignment removed)
-
-State 70 file ./test.c line 23 function main thread 0
-----------------------------------------------------
-  arg=(assignment removed)
-
-State 71 file <builtin-library>-pthread_create line 33 function pthread_create thread 0
-----------------------------------------------------
-  this_thread_id=(assignment removed)
-
-State 73 file <builtin-library>-pthread_create line 35 function pthread_create thread 0
-----------------------------------------------------
-  __CPROVER_next_thread_id=1 (00000000000000000000000000000001)
-
-State 74 file <builtin-library>-pthread_create line 35 function pthread_create thread 0
-----------------------------------------------------
-  this_thread_id=1 (00000000000000000000000000000001)
-
-State 78 file <builtin-library>-pthread_create line 44 function pthread_create thread 0
-----------------------------------------------------
-  t2=1 (00000000000000000000000000000001)
-
-State 82 file <builtin-library>-pthread_create line 49 function pthread_create thread 0
-----------------------------------------------------
-  start_routine=(assignment removed)
-
-State 83 file <builtin-library>-pthread_create line 49 function pthread_create thread 0
-----------------------------------------------------
-  arg=(assignment removed)
-
-State 84 file <builtin-library>-pthread_create line 49 function pthread_create thread 0
-----------------------------------------------------
-  id=1 (00000000000000000000000000000001)
-
-State 91 file ./test.c line 25 function main thread 0
-----------------------------------------------------
-  thread=(assignment removed)
-
-State 92 file ./test.c line 25 function main thread 0
-----------------------------------------------------
-  value_ptr=(assignment removed)
-
-State 99 file ./test.c line 26 function main thread 0
-----------------------------------------------------
-  thread=1 (00000000000000000000000000000001)
-
-State 100 file ./test.c line 26 function main thread 0
-----------------------------------------------------
-  value_ptr=(assignment removed)
+  cond=cond!0@1#1 (?)
 
 Violated property:
-  file ./test.c line 28 function main
-  assertion !(r1==0 && r2==0)
+  file ./pthread_test.c line 7 function __VERIFIER_assert
+  assertion
   FALSE
 
-
-State 114 file <builtin-library>-pthread_create line 19 function __actual_thread_spawn thread 1
-----------------------------------------------------
-  __CPROVER_thread_id=(assignment removed)
-
-State 117 file <builtin-library>-pthread_create line 20 function __actual_thread_spawn thread 1
-----------------------------------------------------
-  arg=(assignment removed)
-
-State 120 file ./test.c line 10 function thr1 thread 1
-----------------------------------------------------
-  r1=0 (00000000000000000000000000000000)
-
-State 122 file ./test.c line 11 function thr1 thread 1
-----------------------------------------------------
-  y=(assignment removed)
-
-State 128 file <builtin-library>-pthread_create line 23 function __actual_thread_spawn thread 1
-----------------------------------------------------
-  __CPROVER_threads_exited[(int)id!1@0]=(assignment removed)
-
-State 129 file <builtin-library>-pthread_create line 19 function __actual_thread_spawn thread 2
-----------------------------------------------------
-  __CPROVER_thread_id=(assignment removed)
-
-State 132 file <builtin-library>-pthread_create line 20 function __actual_thread_spawn thread 2
-----------------------------------------------------
-  arg=(assignment removed)
-
-State 135 file ./test.c line 10 function thr1 thread 2
-----------------------------------------------------
-  r1=0 (00000000000000000000000000000000)
-
-State 137 file ./test.c line 11 function thr1 thread 2
-----------------------------------------------------
-  y=(assignment removed)
-
-State 143 file <builtin-library>-pthread_create line 23 function __actual_thread_spawn thread 2
-----------------------------------------------------
-  __CPROVER_threads_exited[(int)id!2@0]=(assignment removed)

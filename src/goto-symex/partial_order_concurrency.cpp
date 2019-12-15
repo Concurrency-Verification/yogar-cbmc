@@ -302,10 +302,11 @@ void partial_order_concurrencyt::build_clock_type(
 {
   // assert(!numbering.empty());
 
-  // mp_integer width=address_bits(numbering.size());
-  // assert(width<std::numeric_limits<unsigned>::max());
-  // clock_type=unsignedbv_typet(integer2unsigned(width));
-  clock_type = integer_typet();
+   mp_integer width=address_bits(numbering.size());
+   assert(width<std::numeric_limits<unsigned>::max());
+   clock_type=unsignedbv_typet(integer2unsigned(width));
+//  clock_type = integer_typet();
+//	clock_type = oc_typet();
 }
 
 /*******************************************************************\

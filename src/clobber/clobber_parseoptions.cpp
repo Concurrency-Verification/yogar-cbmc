@@ -37,7 +37,7 @@ Author: Daniel Kroening, kroening@kroening.com
 #include <cbmc/version.h>
 
 #include "clobber_parseoptions.h"
-#include "clobber_instrumenter.h"
+//#include "clobber_instrumenter.h"
 
 /*******************************************************************\
 

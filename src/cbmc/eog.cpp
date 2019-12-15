@@ -8,7 +8,6 @@
 #include "eog.h"
 #include <iostream>
 #include <algorithm>
-#include <string.h>
 
 time_periodt ttt = current_time() - current_time();
 int mk = 0;
@@ -168,18 +167,20 @@ void eog::find_cycle_from_node(node* v)
 				}
 			}
 		}
+		
+		// __FHY_ADD_BEGIN__
+		std::cout << ++reason_num << " trace: ";
+		for (unsigned i = j; i < m_trace.size(); i++) {
+			std::cout << m_trace[i]->m_event->ssa_lhs.get_identifier() << "->";
+		}
+		std::cout << "\nreason: ";
 
-//		std::cout << ++reason_num << " trace: ";
-//		for (unsigned i = j; i < m_trace.size(); i++) {
-//			std::cout << m_trace[i]->m_event->ssa_lhs.get_identifier() << "->";
-//		}
-//		std::cout << "\nreason: ";
-//
-//		for (unsigned i = 0; i < reason.size(); i++) {
-//			reason[i]->outputx();
-//			std::cout << ", ";
-//		}
-//		std::cout << "\n";
+		for (unsigned i = 0; i < reason.size(); i++) {
+			reason[i]->outputx();
+			std::cout << ", ";
+		}
+		std::cout << "\n";
+		// __FHY_ADD_END__
 
 
 		m_reasons.push_back(reason);
@@ -247,7 +248,7 @@ bool reason_vec_compare(const std::vector<edge*>& r1, const std::vector<edge*>& 
 
 bool reason_compare(const edge* r1, const edge* r2) {
 	return (r1->m_src->m_id < r2->m_src->m_id) ||
-			(r1->m_src->m_id == r2->m_src->m_id) && (r1->m_dst->m_id < r2->m_dst->m_id);
+			((r1->m_src->m_id == r2->m_src->m_id) && (r1->m_dst->m_id < r2->m_dst->m_id));
 }
 
 bool subset(const std::vector<edge*>& r1, const std::vector<edge*>& r2) {
@@ -272,17 +273,19 @@ void eog::process_reasons()
 	std::cout << "cycle number = " << m_reasons.size() << "\n";
 
 	// sort each reason by edge address
-
-	for (unsigned i = 0; i < m_reasons.size(); i++) {
-		sort(m_reasons[i].begin(), m_reasons[i].end(), reason_compare);
-	}
-
+	
+	// __FHY_ADD_BEGIN__
+//	for (unsigned i = 0; i < m_reasons.size(); i++) {
+//		sort(m_reasons[i].begin(), m_reasons[i].end(), reason_compare);
+//	}
+//
 //	for (unsigned i = 0; i < m_reasons.size(); i++) {
 //		std::cout << i << ": ";
 //		for (unsigned j = 0; j < m_reasons[i].size(); j++)
 //			m_reasons[i][j]->outputx();
 //		std::cout << "\n";
 //	}
+	// __FHY_ADD_END__
 
 //	absolute_timet t1 = current_time();
 	// sort reasons by reason size
@@ -303,6 +306,19 @@ void eog::process_reasons()
 	}
 	m_reasons.clear();
 	m_reasons = effective_reasons;
+	
+	// __FHY_ADD_BEGIN__
+//	for (unsigned i = 0; i < m_reasons.size(); i++) {
+//		sort(m_reasons[i].begin(), m_reasons[i].end(), reason_compare);
+//	}
+//
+//	for (unsigned i = 0; i < m_reasons.size(); i++) {
+//		std::cout << i << ": ";
+//		for (unsigned j = 0; j < m_reasons[i].size(); j++)
+//			m_reasons[i][j]->outputx();
+//		std::cout << "\n";
+//	}
+	// __FHY_ADD_END__
 }
 
 void eog::add_na_edge(node* nsrc, node* ndst, na_info& info,

@@ -219,7 +219,6 @@ const boolbv_widtht::entryt &boolbv_widtht::get_entry(const typet &type) const
   // __FHY_ADD_BEGIN__
   else if(type_id == ID_oc)
   {
-    
   }
   // __FHY_ADD_END__
   else if(type_id==ID_enum)

@@ -423,7 +423,7 @@ bool bmct::run(const goto_functionst &goto_functions)
     symex(goto_functions);
 
     equation.slice();
-
+    
     // add a partial ordering, if required    
     if(equation.has_threads())
     {
@@ -433,7 +433,7 @@ bool bmct::run(const goto_functionst &goto_functions)
     statistics() << "size of program expression: "
                  << equation.SSA_steps.size()
                  << " steps" << eom;
-
+    
 //	equation.output(std::cout);
   }
 

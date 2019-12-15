@@ -1,5 +1,5 @@
-This product includes software developed by Daniel Kroening, Edmund Clarke, 
-Computer Science Department, University of Oxford 
+This product includes software developed by Daniel Kroening, Edmund Clarke,
+Computer Science Department, University of Oxford
 Computer Science Department, Carnegie Mellon University
 CBMC version 4.9 64-bit linux
 file test.c: Parsing

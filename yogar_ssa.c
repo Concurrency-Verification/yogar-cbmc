@@ -1,5 +1,5 @@
-This product includes software developed by Daniel Kroening, Edmund Clarke, 
-Computer Science Department, University of Oxford 
+This product includes software developed by Daniel Kroening, Edmund Clarke,
+Computer Science Department, University of Oxford
 Computer Science Department, Carnegie Mellon University
 CBMC version 4.9 64-bit linux
 file test.c: Parsing
@@ -116,7 +116,7 @@ Program constraints:
 (79) pthread_join#return_value!0#11 == (\guard#2 ? 3 : pthread_join#return_value!0#10)
 (80) \guard#4 == (r1#2 == 0)
 (81) \guard#5 == (r2#2 == 0)
-(82) ASSERT(!((!\guard#1 && __CPROVER_threads_exited#2[1] || \guard#1) && (!\guard#2 && (!\guard#3 && __CPROVER_threads_exited#3[(int)thread!0@2#1] || \guard#3) || \guard#2) && \guard#4 && \guard#5)) 
+(82) ASSERT(!((!\guard#1 && __CPROVER_threads_exited#2[1] || \guard#1) && (!\guard#2 && (!\guard#3 && __CPROVER_threads_exited#3[(int)thread!0@2#1] || \guard#3) || \guard#2) && \guard#4 && \guard#5))
      guard: (!\guard#1 && __CPROVER_threads_exited#2[1] || \guard#1) && (!\guard#2 && (!\guard#3 && __CPROVER_threads_exited#3[(int)thread!0@2#1] || \guard#3) || \guard#2) && \guard#4 && \guard#5
 (83) main#return_value!0#1 == 0
      guard: (!\guard#1 && __CPROVER_threads_exited#2[1] || \guard#1) && (!\guard#2 && (!\guard#3 && __CPROVER_threads_exited#3[(int)thread!0@2#1] || \guard#3) || \guard#2) && (\guard#4 && \guard#5 || \guard#4 && !\guard#5 || !\guard#4)

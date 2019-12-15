@@ -15,7 +15,7 @@ Author: Daniel Kroening, kroening@kroening.com
 // #define STL_HASH_STDEXT
 // #define STL_HASH_GNU
 // #define STL_HASH_TR1
-// #define STL_HASH_STD
+ #define STL_HASH_STD
 
 #if defined(STL_HASH_NONE)
 
@@ -78,7 +78,7 @@ typedef std::multiset<T1> hash_multiset_cont;
 
 #else
 
-#error Please select hash container option
+//#error Please select hash container option
 
 #endif
 
