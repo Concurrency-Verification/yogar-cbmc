@@ -5,6 +5,7 @@ int x = 1, y = 1, m = 0, n = 0;
 void* thr1 (void * arg) {
     x = y + 1;
     m = y;
+    m = x + 1;
     x = 0;
 }
 

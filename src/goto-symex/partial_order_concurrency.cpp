@@ -81,8 +81,9 @@ void partial_order_concurrencyt::add_init_writes(
     else if(!is_shared_read(e_it) &&
             !is_shared_write(e_it))
       continue;
-
+    
     const irep_idt &a=address(e_it);
+    
 
     if(init_done.find(a)!=init_done.end()) continue;
 
@@ -146,6 +147,20 @@ void partial_order_concurrencyt::build_event_lists(
           a_rec.reads.push_back(e_it);
         else // must be write
           a_rec.writes.push_back(e_it);
+        
+        // __FHY_ADD_BEGIN__
+//        std::cout << "-----Read Events: \n";
+//        for(auto ite : a_rec.reads){
+//        	std::cout << "read event: ";
+//        	ite->output(ns, std::cout);
+//        }
+//        std::cout << "-----Write Events: \n";
+//        for(auto ite : a_rec.writes){
+//        	std::cout << "write event: ";
+//        	ite->output(ns, std::cout);
+//        }
+        // __FHY_ADD_END__
+        
       }
 
       // maps an event id to a per-thread counter

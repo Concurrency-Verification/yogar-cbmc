@@ -1,3 +1,4 @@
+
 int x1 = 1, y1 = 1, m1 = 0, n1 = 0;
 void* thr1 (void * arg) {
     x2 = y2 + 1;

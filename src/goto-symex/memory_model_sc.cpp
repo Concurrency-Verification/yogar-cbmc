@@ -26,18 +26,42 @@ Function: memory_model_sct::operator()
 
 void memory_model_sct::operator()(symex_target_equationt &equation)
 {
-  print(8, "Adding SC constraints");
+  	print(8, "Adding SC constraints");
+  	std::cout << equation.SSA_steps.size() << " steps before adding SC constraints" << "\n";
+  
+  	build_event_lists(equation);
+  	build_clock_type(equation);
+  	set_events_ssa_id(equation);
+  
+  // __FHY_ADD_BEGIN__
+//  read_from(equation); std::cout << equation.SSA_steps.size() << " steps" << "\n";
+//  std::cout << "Original Read_From By Yogar CBMC:\n";
+//  for(const auto& it : equation.SSA_steps)
+//  	it.output(ns, std::cout);
 
-  build_event_lists(equation); std::cout << equation.SSA_steps.size() << " steps" << "\n";
-  build_clock_type(equation); std::cout << equation.SSA_steps.size() << " steps" << "\n";
-  set_events_ssa_id(equation);
+  	read_from_backup(equation);
+  	std::cout << equation.SSA_steps.size() << " steps after addressing read_from relations: " << "\n";
+//  for(const auto& it : equation.SSA_steps)
+//  	it.output(ns, std::cout);
 
-  read_from(equation); std::cout << equation.SSA_steps.size() << " steps" << "\n";
+//  	write_serialization_external(equation);
+//  	std::cout << equation.SSA_steps.size() << " steps after addressing write sequences relations: " << "\n";
+//  for(const auto& it : equation.SSA_steps)
+//  	it.output(ns, std::cout);
 
-//  read_from_backup(equation); std::cout << equation.SSA_steps.size() << " steps" << "\n";
-//  write_serialization_external(equation); std::cout << equation.SSA_steps.size() << " steps" << "\n";
-//  program_order(equation); std::cout << equation.SSA_steps.size() << " steps" << "\n";
+	co_internal(equation);
+	std::cout << equation.SSA_steps.size() << " steps after addressing coi relation: " << "\n";
+//  	for(const auto& it : equation.SSA_steps)
+//  		it.output(ns, std::cout);
+  	
+  	
+  	program_order(equation);
+  	std::cout << equation.SSA_steps.size() << " steps after addressing program orders: :" << "\n";
+  	for(const auto& it : equation.SSA_steps)
+  		it.output(ns, std::cout);
+  
 //  from_read(equation); std::cout << equation.SSA_steps.size() << " steps" << "\n";
+	// __FHY_ADD_END__
 }
 
 /*******************************************************************\
@@ -124,7 +148,7 @@ Function: memory_model_sct::thread_spawn
  Purpose:
 
 \*******************************************************************/
-
+// __FHY_ADD_BEGIN__
 void memory_model_sct::thread_spawn(
   symex_target_equationt &equation,
   const per_thread_mapt &per_thread_map)
@@ -157,8 +181,9 @@ void memory_model_sct::thread_spawn(
         ;
 
       if(n_it!=next_thread->second.end())
-    	  std::cout << "PO: (" << e_it->ssa_lhs.get_identifier() << ", " << (*n_it)->ssa_lhs.get_identifier() << ") \n";
-        add_constraint(
+    	  std::cout << "SPAWN PO: (" << (*e_it).ssa_lhs.get_identifier() << ", " << (*n_it)->ssa_lhs.get_identifier() << ") \n";
+//      spawn_trans.emplace_back(std::make_pair(next_thread_id-1, std::make_pair(next_thread_id, *n_it)));
+      add_constraint(
           equation,
           before(e_it, *n_it),
           "thread-spawn",
@@ -166,7 +191,7 @@ void memory_model_sct::thread_spawn(
     }
   }
 }
-
+// __FHY_ADD_END__
 /*******************************************************************\
 
 Function: memory_model_sct::program_order
@@ -178,10 +203,22 @@ Function: memory_model_sct::program_order
  Purpose:
 
 \*******************************************************************/
-
+// __FHY_ADD_BEGIN__
+/*
+ * Add two relations:
+ * ===POF : belong to  PO ,which contains a "<" relation between a read event and a write event with two condition:
+ * 				1.  satisfying (PO wclk rclk)
+ * 				2.  the write event is the latest write to the same address.
+ *
+ * ===COF : belong to  PO ,which contains a "<" relation between two write events with two condition:
+ * 				1.  satisfying (PO wclk1 wclk2)
+ * 				2.  the write event 1 is the latest write to the same address corresponding to write event 2.
+ */
 void memory_model_sct::program_order(
   symex_target_equationt &equation)
 {
+//	std::vector<std::pair<unsigned ,std::pair<unsigned , eventt>>> spawn_trans;
+	std::vector<event_listt> po_orders;
   per_thread_mapt per_thread_map;
   build_per_thread_map(equation, per_thread_map);
 
@@ -189,15 +226,14 @@ void memory_model_sct::program_order(
   
   // iterate over threads
   int num = 0;
-  int tt = 0;
   for(per_thread_mapt::const_iterator
       t_it=per_thread_map.begin();
       t_it!=per_thread_map.end();
       t_it++)
   {
-//	  std::cout << "======== begin thread " << num << "===========\n";
+  	std::cout << "======== begin thread " << num << "===========\n";
     const event_listt &events=t_it->second;
-    
+    event_listt temp_list;
     // iterate over relevant events in the thread
     
     event_it previous=equation.SSA_steps.end();
@@ -217,8 +253,8 @@ void memory_model_sct::program_order(
         continue;
       }
 
-//	  std::cout << tt << "PO: (" << previous->ssa_lhs.get_identifier() << ", " << (*e_it)->ssa_lhs.get_identifier() << ") \n";
-
+	  std::cout << "PO: (" << previous->ssa_lhs.get_identifier() << ", " << (*e_it)->ssa_lhs.get_identifier() << ") \n";
+      temp_list.emplace_back(*e_it);
 	  add_constraint(
 		equation,
 		before(previous, *e_it),
@@ -227,9 +263,51 @@ void memory_model_sct::program_order(
 
       previous=*e_it;
     }
-//    std::cout << "======== end thread " << num++ << "===========\n";
+    std::cout << "======== end thread " << num++ << "===========\n";
+    po_orders.emplace_back(temp_list);
+  }
+  
+  // ADD POF Relation
+  for(unsigned i = 0; i < po_orders.size(); i++){
+  	const event_listt &event_list = po_orders[i];
+  	unsigned thread_id = i;
+
+  	for(event_listt::const_iterator e_it = event_list.begin(); e_it != event_list.end(); ++e_it)
+	{
+  		if(!is_shared_write(*e_it))
+			continue;
+  		event_listt::const_iterator next = e_it;
+  		next++;
+		bool meet_flag = false;
+
+  		for(event_listt::const_iterator e_it2 = next;
+  			e_it2!= event_list.end(); ++e_it2)
+  		{
+  			if(!is_shared_read(*e_it2))
+				continue;
+  			const a_rect &rec = address_map[address(*e_it)];
+  			for(auto event: rec.reads){
+				if(event->ssa_lhs.get_identifier() == (*e_it2)->ssa_lhs.get_identifier())
+				{
+//						std::cout << "----:" << event->ssa_lhs.get_identifier()
+//								<< "  " << (*e_it2)->ssa_lhs.get_identifier() << "\n";
+						meet_flag = true;
+						break;
+				}
+  			}
+  			if(meet_flag)
+			{
+				std::cout << "POF: (" << (*e_it)->ssa_lhs.get_identifier()
+							<< ", " << (*e_it2)->ssa_lhs.get_identifier() << ") \n";
+				add_constraint(equation, before(*e_it, *e_it2), "pof", (*e_it)->source);
+				meet_flag = false;
+				break;
+			}
+  		}
+	}
   }
 }
+// __FHY_ADD_END__
 
 /*******************************************************************\
 
@@ -242,10 +320,10 @@ Function: memory_model_sct::write_serialization_external
  Purpose:
 
 \*******************************************************************/
-
 void memory_model_sct::write_serialization_external(
   symex_target_equationt &equation)
 {
+	bool first_meet = false;
   for(address_mapt::const_iterator
       a_it=address_map.begin();
       a_it!=address_map.end();
@@ -261,7 +339,7 @@ void memory_model_sct::write_serialization_external(
         w_it1!=a_rec.writes.end();
         ++w_it1)
     {
-      event_listt::const_iterator next=w_it1;
+    	event_listt::const_iterator next=w_it1;
       ++next;
 
       for(event_listt::const_iterator w_it2=next;
@@ -269,10 +347,10 @@ void memory_model_sct::write_serialization_external(
           ++w_it2)
       {
         // external?
-        if((*w_it1)->source.thread_nr==
-           (*w_it2)->source.thread_nr)
-          continue;
-
+        // If internal, get po order coi from here.
+        if((*w_it1)->source.thread_nr == (*w_it2)->source.thread_nr)
+        	continue;
+        
         // ws is a total order, no two elements have the same rank
         // s -> w_evt1 before w_evt2; !s -> w_evt2 before w_evt1
 
@@ -294,7 +372,6 @@ void memory_model_sct::write_serialization_external(
     }
   }
 }
-
 /*******************************************************************\
 
 Function: memory_model_sct::from_read
@@ -449,5 +526,43 @@ unsigned memory_model_sct::set_single_event_ssa_id(symex_target_equationt &equat
 	}
 	return 0;
 }
+
+// __FHY_ADD_BEGIN__
+void memory_model_sct::co_internal(symex_target_equationt &equation)
+{
+	bool first_meet = false;
+	for(address_mapt::const_iterator a_it=address_map.begin(); a_it!=address_map.end(); a_it++)
+	{
+		const a_rect &a_rec=a_it->second;
+		for(auto w_it1=a_rec.writes.begin(); w_it1!=a_rec.writes.end(); ++w_it1)
+		{
+			first_meet = false;
+			auto next=w_it1;
+			++next;
+			
+			for(auto w_it2=next; w_it2!=a_rec.writes.end(); ++w_it2)
+			{
+				// If internal, get po order coi from here.
+				if((*w_it1)->source.thread_nr == (*w_it2)->source.thread_nr && !first_meet)
+				{
+					first_meet = true;
+					add_constraint(equation, before(*w_it1, *w_it2), "coi", (*w_it1)->source);
+					std::cout << "COI: (" <<
+							  (*w_it1)->ssa_lhs.get_identifier() << ", "<< (*w_it2)->ssa_lhs.get_identifier() << ") \n";
+					continue;
+				}
+			}
+		}
+	}
+}
+
+void memory_model_sct::program_order_pof_coi(symex_target_equationt &equation)
+{
+	per_thread_mapt per_thread_map;
+	build_per_thread_map(equation, per_thread_map);
+	
+	
+}
+// __FHY_ADD_END__
 
 
