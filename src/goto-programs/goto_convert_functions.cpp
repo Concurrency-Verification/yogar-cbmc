@@ -352,7 +352,7 @@ void goto_convert(
     symbol_table, functions, message_handler);
   
   try
-  {  
+  {
     goto_convert_functions.goto_convert();
 
     functions.for_unwind_limit = goto_convert_functions.for_unwind_limit;

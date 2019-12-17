@@ -78,18 +78,14 @@ void partial_order_concurrencyt::add_init_writes(
       spawn_seen=true;
       continue;
     }
-    else if(!is_shared_read(e_it) &&
-            !is_shared_write(e_it))
+    else if(!is_shared_read(e_it) && !is_shared_write(e_it))
       continue;
     
     const irep_idt &a=address(e_it);
     
-
+    
     if(init_done.find(a)!=init_done.end()) continue;
-
-    if(spawn_seen ||
-       is_shared_read(e_it) ||
-       !e_it->guard.is_true())
+    if(spawn_seen || is_shared_read(e_it) || !e_it->guard.is_true())
     {
       init_steps.push_back(symex_target_equationt::SSA_stept());
       symex_target_equationt::SSA_stept &SSA_step=init_steps.back();

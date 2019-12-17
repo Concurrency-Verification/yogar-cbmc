@@ -44,17 +44,16 @@ void memory_model_sct::operator()(symex_target_equationt &equation)
 //  for(const auto& it : equation.SSA_steps)
 //  	it.output(ns, std::cout);
 
-//  	write_serialization_external(equation);
-//  	std::cout << equation.SSA_steps.size() << " steps after addressing write sequences relations: " << "\n";
-//  for(const auto& it : equation.SSA_steps)
-//  	it.output(ns, std::cout);
-
-	co_internal(equation);
-	std::cout << equation.SSA_steps.size() << " steps after addressing coi relation: " << "\n";
+  	write_serialization_external(equation);
+  	std::cout << equation.SSA_steps.size() << " steps after addressing write sequences relations: " << "\n";
 //  	for(const auto& it : equation.SSA_steps)
 //  		it.output(ns, std::cout);
-  	
-  	
+
+//	co_internal(equation);
+//	std::cout << equation.SSA_steps.size() << " steps after addressing coi relation: " << "\n";
+//  	for(const auto& it : equation.SSA_steps)
+//  		it.output(ns, std::cout);
+
   	program_order(equation);
   	std::cout << equation.SSA_steps.size() << " steps after addressing program orders: :" << "\n";
   	for(const auto& it : equation.SSA_steps)
@@ -323,7 +322,7 @@ Function: memory_model_sct::write_serialization_external
 void memory_model_sct::write_serialization_external(
   symex_target_equationt &equation)
 {
-	bool first_meet = false;
+	bool meet_flag = false;
   for(address_mapt::const_iterator
       a_it=address_map.begin();
       a_it!=address_map.end();
@@ -341,15 +340,21 @@ void memory_model_sct::write_serialization_external(
     {
     	event_listt::const_iterator next=w_it1;
       ++next;
-
+      
+      meet_flag = false;
       for(event_listt::const_iterator w_it2=next;
           w_it2!=a_rec.writes.end();
           ++w_it2)
       {
         // external?
-        // If internal, get po order coi from here.
-        if((*w_it1)->source.thread_nr == (*w_it2)->source.thread_nr)
+        if((*w_it1)->source.thread_nr == (*w_it2)->source.thread_nr && !meet_flag)
+		{
+        	meet_flag = true;
+			add_constraint(equation, before(*w_it1, *w_it2), "coi", (*w_it1)->source);
+			std::cout << "COI: (" <<
+					  (*w_it1)->ssa_lhs.get_identifier() << ", "<< (*w_it2)->ssa_lhs.get_identifier() << ") \n";
         	continue;
+		}
         
         // ws is a total order, no two elements have the same rank
         // s -> w_evt1 before w_evt2; !s -> w_evt2 before w_evt1
@@ -528,41 +533,30 @@ unsigned memory_model_sct::set_single_event_ssa_id(symex_target_equationt &equat
 }
 
 // __FHY_ADD_BEGIN__
-void memory_model_sct::co_internal(symex_target_equationt &equation)
-{
-	bool first_meet = false;
-	for(address_mapt::const_iterator a_it=address_map.begin(); a_it!=address_map.end(); a_it++)
-	{
-		const a_rect &a_rec=a_it->second;
-		for(auto w_it1=a_rec.writes.begin(); w_it1!=a_rec.writes.end(); ++w_it1)
-		{
-			first_meet = false;
-			auto next=w_it1;
-			++next;
-			
-			for(auto w_it2=next; w_it2!=a_rec.writes.end(); ++w_it2)
-			{
-				// If internal, get po order coi from here.
-				if((*w_it1)->source.thread_nr == (*w_it2)->source.thread_nr && !first_meet)
-				{
-					first_meet = true;
-					add_constraint(equation, before(*w_it1, *w_it2), "coi", (*w_it1)->source);
-					std::cout << "COI: (" <<
-							  (*w_it1)->ssa_lhs.get_identifier() << ", "<< (*w_it2)->ssa_lhs.get_identifier() << ") \n";
-					continue;
-				}
-			}
-		}
-	}
-}
-
-void memory_model_sct::program_order_pof_coi(symex_target_equationt &equation)
-{
-	per_thread_mapt per_thread_map;
-	build_per_thread_map(equation, per_thread_map);
-	
-	
-}
+//void memory_model_sct::co_internal(symex_target_equationt &equation)
+//{
+//	for(address_mapt::const_iterator a_it=address_map.begin(); a_it!=address_map.end(); a_it++)
+//	{
+//		const a_rect &a_rec=a_it->second;
+//		for(auto w_it1=a_rec.writes.begin(); w_it1!=a_rec.writes.end(); ++w_it1)
+//		{
+//			auto next=w_it1;
+//			++next;
+//
+//			for(auto w_it2=next; w_it2!=a_rec.writes.end(); ++w_it2)
+//			{
+//				// If internal, get po order coi from here.
+//				if((*w_it1)->source.thread_nr == (*w_it2)->source.thread_nr)
+//				{
+//					add_constraint(equation, before(*w_it1, *w_it2), "coi", (*w_it1)->source);
+//					std::cout << "COI: (" <<
+//							  (*w_it1)->ssa_lhs.get_identifier() << ", "<< (*w_it2)->ssa_lhs.get_identifier() << ") \n";
+//					continue;
+//				}
+//			}
+//		}
+//	}
+//}
 // __FHY_ADD_END__
 
 

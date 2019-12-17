@@ -37,8 +37,7 @@ protected:
   void from_read(symex_target_equationt &equation);
   void write_serialization_external(symex_target_equationt &equation);
   // __FHY_ADD_BEGIN__
-  void co_internal(symex_target_equationt &equation);
-  void program_order_pof_coi(symex_target_equationt &equation);
+//  void co_internal(symex_target_equationt &equation);
   // __FHY_ADD_END__
 
   // added by ylz08
