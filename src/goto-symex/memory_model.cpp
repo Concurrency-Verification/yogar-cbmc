@@ -257,7 +257,7 @@ void memory_model_baset::read_from(symex_target_equationt &equation)
 				event_value_map.clear();
 			}
 
-			single_thread_flag = (curr_threads == 1 ? true : false);
+			single_thread_flag = curr_threads == 1;
 
 			if (e->is_verify_atomic_begin() && valid_mutex(equation)) {
 				atomic_flag = true;
@@ -277,6 +277,7 @@ void memory_model_baset::read_from(symex_target_equationt &equation)
 						}
 						else {
 							add_constraint(equation, implies_exprt(e->guard, equal_exprt(e->ssa_lhs, event_value_map[address(e)]->ssa_lhs)), "rfi", e->source);
+//							add_constraint(equation, implies_exprt(e->guard, before(e, event_value_map[address(e)])), "rfi", e->source);
 						}
 					}
 				}
@@ -353,8 +354,8 @@ void memory_model_baset::read_from_item(const event_it& r, symex_target_equation
 
 		// Uses only the write's guard as precondition, read's guard
 		// follows from rf_some
-		add_constraint(equation,
-		  read_from, "rf", r->source);
+		add_constraint(equation, read_from, "rf", r->source);
+		add_constraint(equation, or_exprt(not_exprt(s), before(w, r)), "rf-order", r->source);
 
 		rf_some_operands.push_back(s);
       }
@@ -395,6 +396,7 @@ void memory_model_baset::read_from_item(const event_it& r, symex_target_equation
   		  // Uses only the write's guard as precondition, read's guard
   		  // follows from rf_some
   		  add_constraint(equation, read_from, "rfi", r->source);
+//  		  add_constraint(equation, or_exprt(not_exprt(s), before(w, r)), "rfi", r->source);
 
   		  rf_some_operands.push_back(s);
   	  }

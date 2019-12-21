@@ -739,8 +739,7 @@ void symex_target_equationt::convert_constraints(
   decision_proceduret &decision_procedure) const
 {
   for(SSA_stepst::const_iterator it=SSA_steps.begin();
-      it!=SSA_steps.end();
-      it++)
+      it!=SSA_steps.end(); it++)
   {
     if(it->is_constraint())
     {
@@ -748,6 +747,7 @@ void symex_target_equationt::convert_constraints(
         continue;
 
 //      std::cout << "constraint: " << from_expr(ns, "", it->cond_expr) << "\n";
+//      std::cout << "comment: " << it->comment << "\n";
       decision_procedure.set_to_true(it->cond_expr);
     }
   }

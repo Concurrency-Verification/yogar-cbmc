@@ -55,7 +55,6 @@ int main(int argc, const char **argv)
     
     // __FHY_ADD_BEGIN__
     std::cout << "#define ID_oc dstring(" << count << ", 0)";
-    count++;
     // __FHY_ADD_END__
     std::cout << std::endl;
     std::cout << "#endif" << std::endl;

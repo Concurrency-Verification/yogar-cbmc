@@ -147,6 +147,7 @@ void eog::find_cycle_from_node(node* v)
 //			std::cout << m_trace[i]->m_event->ssa_lhs.get_identifier() << "->";
 //		}
 //		std::cout << "\n";
+//		std::cout << "HHHHHHHHHHHHHHHHH \n";
 
 		for (unsigned i = j; i < m_trace_edge.size(); i++) {
 			if (m_trace_edge[i]->m_type == edge::RF) {
@@ -168,6 +169,7 @@ void eog::find_cycle_from_node(node* v)
 			}
 		}
 		
+		
 		// __FHY_ADD_BEGIN__
 		std::cout << ++reason_num << " trace: ";
 		for (unsigned i = j; i < m_trace.size(); i++) {
@@ -181,7 +183,6 @@ void eog::find_cycle_from_node(node* v)
 		}
 		std::cout << "\n";
 		// __FHY_ADD_END__
-
 
 		m_reasons.push_back(reason);
 		return;
@@ -239,7 +240,6 @@ void eog::compute_all_cycles()
 	}
 
 	process_reasons();
-
 }
 
 bool reason_vec_compare(const std::vector<edge*>& r1, const std::vector<edge*>& r2) {
@@ -274,18 +274,9 @@ void eog::process_reasons()
 
 	// sort each reason by edge address
 	
-	// __FHY_ADD_BEGIN__
-//	for (unsigned i = 0; i < m_reasons.size(); i++) {
-//		sort(m_reasons[i].begin(), m_reasons[i].end(), reason_compare);
-//	}
-//
-//	for (unsigned i = 0; i < m_reasons.size(); i++) {
-//		std::cout << i << ": ";
-//		for (unsigned j = 0; j < m_reasons[i].size(); j++)
-//			m_reasons[i][j]->outputx();
-//		std::cout << "\n";
-//	}
-	// __FHY_ADD_END__
+	for (unsigned i = 0; i < m_reasons.size(); i++) {
+		sort(m_reasons[i].begin(), m_reasons[i].end(), reason_compare);
+	}
 
 //	absolute_timet t1 = current_time();
 	// sort reasons by reason size
@@ -307,18 +298,16 @@ void eog::process_reasons()
 	m_reasons.clear();
 	m_reasons = effective_reasons;
 	
-	// __FHY_ADD_BEGIN__
-//	for (unsigned i = 0; i < m_reasons.size(); i++) {
-//		sort(m_reasons[i].begin(), m_reasons[i].end(), reason_compare);
-//	}
-//
-//	for (unsigned i = 0; i < m_reasons.size(); i++) {
-//		std::cout << i << ": ";
-//		for (unsigned j = 0; j < m_reasons[i].size(); j++)
-//			m_reasons[i][j]->outputx();
-//		std::cout << "\n";
-//	}
-	// __FHY_ADD_END__
+	//// __FHY_ADD_BEGIN__
+	std::cout << "******************Kernel Reasons ******************\n";
+	for (unsigned i = 0; i < m_reasons.size(); i++) {
+		std::cout << i << ": ";
+		for (unsigned j = 0; j < m_reasons[i].size(); j++)
+			m_reasons[i][j]->outputx();
+		std::cout << "\n";
+	}
+	std::cout << "****************************************************\n";
+	//// __FHY_ADD_END__
 }
 
 void eog::add_na_edge(node* nsrc, node* ndst, na_info& info,
@@ -443,115 +432,6 @@ void eog::get_var_nodes(pa_son_set& set, const std::vector<int>& vec, nodevt& no
 			nodes.push_back(m_vnodes[vec[i]]);
 	}
 }
-/*
-// compute the reason rfs of why dst is a son of src
-void eog::compute_son_reason(node* src, node* dst, edgest& son_reason) {
-	absolute_timet t1=current_time();
-
-	std::map<node*, int> weight;
-	std::map<node*, edgest> parents;
-	std::vector<node*> src_sons;
-
-	src_sons.push_back(src);
-	weight[src] = 1;
-	int m = 0;
-	unsigned i;
-	bool reach_flag = false;
-	for (i = 0; i < src_sons.size(); i++) {
-		node* xsrc = src_sons[i];
-		edgest::iterator it;
-		m++;
-
-		for (it = xsrc->m_output_pos.begin(); it != xsrc->m_output_pos.end(); it++) {
-			edge* e = *it;
-			if (e->m_dst == dst && (weight[e->m_dst] == 0 || weight[xsrc] < weight[e->m_dst])) {
-				weight[e->m_dst] = weight[xsrc];
-				parents[e->m_dst].push_back(e);
-				reach_flag = true;
-				break;
-			}
-			if (is_son_of(e->m_dst, dst) && (weight[e->m_dst] == 0 || weight[xsrc] < weight[e->m_dst])) {
-				weight[e->m_dst] = weight[xsrc];
-				parents[e->m_dst].push_back(e);
-				src_sons.push_back(e->m_dst);
-			}
-		}
-
-		if (reach_flag)
-			break;
-
-		for (it = xsrc->m_output_epos.begin(); it != xsrc->m_output_epos.end(); it++) {
-			edge* e = *it;
-			if (e->m_dst == dst && (weight[e->m_dst] == 0 || weight[xsrc] < weight[e->m_dst])) {
-				weight[e->m_dst] = weight[xsrc];
-				parents[e->m_dst].push_back(e);
-				reach_flag = true;
-				break;
-			}
-			if (is_son_of(e->m_dst, dst) && (weight[e->m_dst] == 0 || weight[xsrc] < weight[e->m_dst])) {
-				weight[e->m_dst] = weight[xsrc];
-				parents[e->m_dst].push_back(e);
-				src_sons.push_back(e->m_dst);
-			}
-		}
-
-		if (reach_flag)
-			break;
-
-		for (it = xsrc->m_output_rfs.begin(); it != xsrc->m_output_rfs.end(); it++) {
-			edge* e = *it;
-			if (e->m_dst == dst && (weight[e->m_dst] == 0 || weight[xsrc] + 1 < weight[e->m_dst])) {
-				weight[e->m_dst] = weight[xsrc] + 1;
-				parents[e->m_dst].push_back(e);
-				reach_flag = true;
-				break;
-			}
-			if (is_son_of(e->m_dst, dst) && (weight[e->m_dst] == 0 || weight[xsrc] + 1 < weight[e->m_dst])) {
-				weight[e->m_dst] = weight[xsrc] + 1;
-				parents[e->m_dst].push_back(e);
-				src_sons.push_back(e->m_dst);
-			}
-		}
-
-		if (reach_flag)
-			break;
-
-		for (it = xsrc->m_output_nas.begin(); it != xsrc->m_output_nas.end(); it++) {
-			edge* e = *it;
-			if (e->m_dst == dst && (weight[e->m_dst] == 0 || weight[xsrc] + 1 < weight[e->m_dst])) {
-				weight[e->m_dst] = weight[xsrc] + 1;
-				parents[e->m_dst].push_back(e);
-				reach_flag = true;
-				break;
-			}
-			if (is_son_of(e->m_dst, dst) && (weight[e->m_dst] == 0 || weight[xsrc] + 1 < weight[e->m_dst])) {
-				weight[e->m_dst] = weight[xsrc] + 1;
-				parents[e->m_dst].push_back(e);
-				src_sons.push_back(e->m_dst);
-			}
-		}
-
-		if (reach_flag)
-			break;
-	}
-
-	node* node_tmp = dst;
-	while (weight[node_tmp] > 1) {
-		edgest& edgest_tmp = parents[node_tmp];
-
-		edgest::iterator it;
-		for (it = edgest_tmp.begin(); it != edgest_tmp.end(); it++) {
-			if (weight[(*it)->m_src] <= weight[node_tmp])
-				break;
-		}
-		assert(it != edgest_tmp.end());
-
-		edgest_merge(son_reason, (*it)->m_reasons);
-		node_tmp = (*it)->m_src;
-	}
-//	std::cout << weight[dst] - 1 << " " << son_reason.size() << "\n";
-	totaltime += current_time() - t1;
-}*/
 
 void eog::compute_son_reason(node* src, node* dst, edgest& son_reason) {
 	mk++;
