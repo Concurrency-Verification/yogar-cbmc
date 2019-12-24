@@ -11,6 +11,10 @@ Author: Daniel Kroening, kroening@kroening.com
 
 #include "message.h"
 
+// __FHY_ADD_BEGIN__
+#include <goto-symex/symex_target_equation.h>
+// __FHY_ADD_END__
+
 class exprt;
 class namespacet;
 
@@ -34,9 +38,10 @@ public:
   
   inline void set_to_true(const exprt &expr)
   { set_to(expr, true); }
-   
+  
   inline void set_to_false(const exprt &expr)
   { set_to(expr, false); }
+  
   
   // solve the problem
   typedef enum { D_SATISFIABLE, D_UNSATISFIABLE, D_ERROR } resultt;

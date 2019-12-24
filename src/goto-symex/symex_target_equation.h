@@ -302,6 +302,8 @@ public:
 
   typedef std::map<irep_idt, a_rect> address_mapt;
   address_mapt address_map;
+  
+  
   //==============================================================
 
 
@@ -327,6 +329,17 @@ public:
 
   typedef std::list<SSA_stept> SSA_stepst;
   SSA_stepst SSA_steps;
+	
+  // __FHY_ADD_BEGIN__
+  /*
+   * Every element in oclt_symbolt has form:
+   * <<write_event_identifier, read_event_identifier>, <implies_literal.to_string(), oclt_type>> for example:
+   * < <wx1clk,rx2clk>, "rf1", "rf-order" >
+   * < <wx1clk, ry1clk>, "", "po" >
+   */
+  typedef std::multimap<std::pair<std::string, std::string>, std::pair<std::string, std::string>> oclt_symbolt;
+  oclt_symbolt oclt_type_table;
+  // __FHY_ADD_END__
   
   // ylz: for build eog
   class eq_edge{

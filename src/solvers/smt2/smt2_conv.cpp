@@ -30,6 +30,7 @@ Author: Daniel Kroening, kroening@kroening.com
 
 // Mark different kinds of error condition
 #define TODO(S) throw "TODO: " S
+int counter = 0;
 #define UNREACHABLE throw "Supposidly unreachable location reached"
 
 /*******************************************************************\
@@ -114,7 +115,6 @@ void smt2_convt::write_header()
 	if(emit_set_logic)
 		out << "(set-logic " << logic << ")" << "\n";
 	
-	
 }
 
 /*******************************************************************\
@@ -176,6 +176,10 @@ void smt2_convt::write_footer()
 	out << "(exit)\n";
 	
 	out << "; end of SMT2 file" << "\n";
+
+//	for(auto it: smt2_identifiers){
+//		std::cout << "identifier: " <<it << "\n";
+//	}
 }
 
 /*******************************************************************\
@@ -916,7 +920,6 @@ Function: smt2_convt::convert_identifier
  Purpose:
 
 \*******************************************************************/
-
 std::string smt2_convt::convert_identifier(const irep_idt &identifier)
 {
 	// Backslashes are disallowed in quoted symbols just for simplicity.
@@ -924,11 +927,9 @@ std::string smt2_convt::convert_identifier(const irep_idt &identifier)
 	// as escaping symbols.
 	
 	std::string result;
-	
 	for(unsigned i=0; i<identifier.size(); i++)
 	{
 		char ch=identifier[i];
-		
 		switch(ch)
 		{
 			case '|':
@@ -938,16 +939,26 @@ std::string smt2_convt::convert_identifier(const irep_idt &identifier)
 				result+=i2string(ch);
 				result+=';';
 				break;
-			
 			case '$': // $ _is_ allowed
 			default:
 				result+=ch;
 		}
 	}
 	
+//	// __FHY_ADD_BEGIN__
+//	// remove prefix "c::"
+//	result = result.substr(result.find_first_not_of("c::"), result.length());
+//	// remove prefix "__CPROVER_"
+//	result = result.substr(result.find_first_not_of("__CPROVER_"), result.length());
+//	//  remove guards' prefix "goto_symex::&92;"
+//	int position = result.find_last_of(';');
+//	if(position != std::string::npos){
+//		result = result.substr(position+1, result.length());
+//	}
+//	std::cout <<"id: " << result << "\n";
+//	// __FHY_ADD_END__
 	return result;
 }
-
 /*******************************************************************\
 
 Function: smt2_convt::convert_expr
@@ -2976,14 +2987,81 @@ void smt2_convt::convert_relation(const exprt &expr)
 		out << " ";
 		convert_expr(expr.op1());
 	}
-	// __FHY_ADD_BEGIN__
-	else if(op_type.id() == ID_oc){
+		// __FHY_ADD_BEGIN__
+	else if(op_type.id() == ID_oc)
+	{
 		assert(expr.id() == ID_lt || expr.id() == ID_ge);
+		// Judge Relation between Oc Variables
+		/*
+		 * PO : oclt-po
+		 * POF: oclt-pof
+		 * COI: oclt-coi
+		 * COE: oclt-coe
+		 * RF: 	oclt-rf
+		 */
 		
-		out << "oclt ";
-		convert_expr(expr.op0());
-		out << " ";
-		convert_expr(expr.op1());
+		std::string e1_str = from_expr(ns, "", expr.op0());
+		std::string e2_str = from_expr(ns, "", expr.op1());
+		// relation between spwn  and other element is program order
+		if( e1_str.find("spwnclk") != std::string::npos || e2_str.find("spwnclk") != std::string::npos )
+		{
+			out << "oclt-po ";
+			convert_expr(expr.op0());
+			out << " ";
+			convert_expr(expr.op1());
+		}
+		else
+		{
+			e1_str = e1_str.substr(0, e1_str.find_first_of('$'));
+			e2_str = e2_str.substr(0, e2_str.find_first_of('$'));
+			std::cout << "====OCLT Relation: " << e1_str << ": " << e2_str << "\n";
+			oclt_ite it = oclt_type_table.find(std::make_pair(e1_str,e2_str));
+			assert(it!= oclt_type_table.end());
+			if(it->second.second == "po")
+			{
+				out << "oclt-po ";
+				convert_expr(expr.op0());
+				out << " ";
+				convert_expr(expr.op1());
+			}
+			else if(it->second.second == "pof")
+			{
+				out << "oclt-pof ";
+				convert_expr(expr.op0());
+				out << " ";
+				convert_expr(expr.op1());
+			}
+			else if(it->second.second == "coi")
+			{
+				out << "oclt-coi ";
+				convert_expr(expr.op0());
+				out << " ";
+				convert_expr(expr.op1());
+			}
+			else if(it->second.second == "rf-order")
+			{
+				out << "oclt-rf ";
+				convert_expr(expr.op0());
+				out << " ";
+				convert_expr(expr.op1());
+				out << " ";
+				out << it->second.first;
+			}
+			else if(it->second.second == "coe")
+			{
+				out << "oclt-coe ";
+				convert_expr(expr.op0());
+				out << " ";
+				convert_expr(expr.op1());
+				out << " ";
+				out << it->second.first;
+			}
+			else{
+				std::cerr << "Unsupported oclt type: " << it->second.second << "\n";
+				assert(false);
+			}
+			oclt_type_table.erase(it);
+		}
 	}
 	// __FHY_ADD_END__
 	else if(op_type.id()==ID_floatbv)
@@ -4384,7 +4462,7 @@ void smt2_convt::set_to(const exprt &expr, bool value)
 				find_symbols(id.type);
 				find_symbols(equal_expr.rhs());
 				
-				std::string smt2_identifier=convert_identifier(identifier);
+				std::string smt2_identifier = convert_identifier(identifier);
 				smt2_identifiers.insert(smt2_identifier);
 				
 				out << "; set_to true (equal)\n";
@@ -4412,9 +4490,6 @@ void smt2_convt::set_to(const exprt &expr, bool value)
 	
 	if(!value)
 	{
-		// out << "(not ";
-		// convert_expr(expr);
-		// out << ")";
 		// __FHY_ADD_BEGIN__
 		if(expr.id() == ID_ge && expr.op0().type().id() == ID_oc){
 			convert_expr(expr);
@@ -4429,7 +4504,7 @@ void smt2_convt::set_to(const exprt &expr, bool value)
 	else
 		convert_expr(expr);
 	
-	out << ")" << "\n"; // assert
+	out << ")"; // assert
 	
 	return;
 }

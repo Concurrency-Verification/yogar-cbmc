@@ -33,6 +33,10 @@ protected:
   typedef std::map<
     std::pair<event_it, event_it>, symbol_exprt> choice_symbolst;
   choice_symbolst choice_symbols;
+  
+  // __FHY_ADD_BEGIN__
+  choice_symbolst wse_symbols;
+  // __FHY_ADD_END__
 
   // maps thread numbers to an event list
   typedef std::map<unsigned, event_listt> per_thread_mapt;

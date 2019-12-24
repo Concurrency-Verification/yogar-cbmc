@@ -37,6 +37,7 @@ cmake-build-release/*
 *.out
 *goto.c
 *ssa.c
+*.witness
 *example.c
 src/util/version.cpp
 src/ansi-c/arm_builtin_headers.inc

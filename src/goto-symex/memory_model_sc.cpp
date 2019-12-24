@@ -39,24 +39,28 @@ void memory_model_sct::operator()(symex_target_equationt &equation)
 //	std::cout << "Original Read_From By Yogar CBMC:\n";
 //	for(const auto& it : equation.SSA_steps)
 //		it.output(ns, std::cout);
-	
+
 //	read_from_backup(equation);
 //	std::cout << equation.SSA_steps.size() << " steps after addressing read_from relations: " << "\n";
 //	for(const auto& it : equation.SSA_steps)
 //		it.output(ns, std::cout);
-
+	
 	write_serialization_external(equation);
 	std::cout << equation.SSA_steps.size() << " steps after addressing write sequences relations: " << "\n";
 //  	for(const auto& it : equation.SSA_steps)
 //  		it.output(ns, std::cout);
-
-
-  	program_order(equation);
-  	std::cout << equation.SSA_steps.size() << " steps after addressing program orders: :" << "\n";
-//  	for(const auto& it : equation.SSA_steps)
-//  		it.output(ns, std::cout);
-
-//  from_read(equation); std::cout << equation.SSA_steps.size() << " steps" << "\n";
+	
+	
+	program_order(equation);
+	std::cout << equation.SSA_steps.size() << " steps after addressing program orders: :" << "\n";
+	
+	std::cout << "===================OCLT Records: "<< equation.oclt_type_table.size()<<" ===================\n";
+	for(const auto& it : equation.oclt_type_table){
+		std::cout<< "oclt record: " << it.first.first << "  " <<
+				 it.first.second << "  " << it.second.first << "  " <<
+				 it.second.second << "\n";
+	}
+	
 	// __FHY_ADD_END__
 }
 
@@ -170,10 +174,12 @@ void memory_model_sct::thread_spawn(
 			// require explicit handling of these.
 			event_listt::const_iterator n_it=next_thread->second.begin();
 			for(; n_it!=next_thread->second.end() && (*n_it)->is_memory_barrier()
-					&& !(*n_it)->is_shared_read() && !(*n_it)->is_shared_write(); ++n_it);
-			
+				  && !(*n_it)->is_shared_read() && !(*n_it)->is_shared_write(); ++n_it);
+
 			if(n_it!=next_thread->second.end())
-				std::cout << "SPAWN PO: (" << (*e_it).ssa_lhs.get_identifier() << ", " << (*n_it)->ssa_lhs.get_identifier() << ") \n";
+				std::cout << "SPAWN PO: (" << e_it->ssa_lhs.get_identifier()
+						  << ", " << (*n_it)->ssa_lhs.get_identifier() << ") \n";
+			
 			add_constraint(equation, before(e_it, *n_it), "thread-spawn", e_it->source);
 		}
 	}
@@ -238,16 +244,31 @@ void memory_model_sct::program_order(
 			}
 			
 			std::cout << "PO: (" << previous->ssa_lhs.get_identifier()
-						<< ", " << (*e_it)->ssa_lhs.get_identifier() << "\n";
-			
-			auto &function1 = previous->source.pc->function;
-			std::string str1 = from_expr(ns, function1, previous->guard);
-			auto &function2 = (*e_it)->source.pc->function;
-			std::string str2 = from_expr(ns, function2, (*e_it)->guard);
-			std::cout << "Guard: " << str1 << ": " << str2 << "\n";
+					  << ", " << (*e_it)->ssa_lhs.get_identifier()  << ")" << "\n";
+//			auto &function1 = previous->source.pc->function;
+//			std::string str1 = from_expr(ns, function1, previous->guard);
+//			auto &function2 = (*e_it)->source.pc->function;
+//			std::string str2 = from_expr(ns, function2, (*e_it)->guard);
+//			std::cout << "Guard: " << str1 << ": " << str2 << "\n";
 			
 			temp_list.emplace_back(*e_it);
 			add_constraint(equation, before(previous, *e_it), "po", (*e_it)->source);
+			
+			// __FHY_ADD_BEGIN__
+			std::string e1_str = id2string(id(previous));
+			std::string e2_str = id2string(id((*e_it)));
+			if(!e1_str.empty())
+			{
+				e1_str = e1_str.substr(e1_str.find_first_not_of("c::"), e1_str.length());
+			}
+			if(!e2_str.empty())
+			{
+				e2_str = e2_str.substr(e2_str.find_first_not_of("c::"), e2_str.length());
+			}
+			
+			equation.oclt_type_table.insert(
+					std::make_pair(std::make_pair(e1_str, e2_str), std::make_pair("", "po")));
+			// __FHY_ADD_END__
 			
 			previous=*e_it;
 		}
@@ -257,7 +278,7 @@ void memory_model_sct::program_order(
 	
 	// ADD POF Relation
 	for(const auto & event_list : po_orders){
-			for(auto e_it = event_list.begin(); e_it != event_list.end(); ++e_it)
+		for(auto e_it = event_list.begin(); e_it != event_list.end(); ++e_it)
 		{
 			if(!is_shared_write(*e_it))
 				continue;
@@ -284,6 +305,44 @@ void memory_model_sct::program_order(
 					std::cout << "POF: (" << (*e_it)->ssa_lhs.get_identifier()
 							  << ", " << (*e_it2)->ssa_lhs.get_identifier() << ") \n";
 					add_constraint(equation, before(*e_it, *e_it2), "pof", (*e_it)->source);
+					
+					// __FHY_ADD_BEGIN__
+					std::string e1_str = id2string(id(*e_it));
+					std::string e2_str = id2string(id(*e_it2));
+					if(!e1_str.empty())
+					{
+						e1_str = e1_str.substr(e1_str.find_first_not_of("c::"), e1_str.length());
+					}
+					if(!e2_str.empty())
+					{
+						e2_str = e2_str.substr(e2_str.find_first_not_of("c::"), e2_str.length());
+					}
+					
+					equation.oclt_type_table.insert(
+							std::make_pair(std::make_pair(e1_str, e2_str), std::make_pair("", "pof")));
+					// __FHY_ADD_END__
+					
+					// Add rf -> ws relation
+					for(const auto& it : choice_symbols)
+					{
+						assert(is_shared_read(it.first.first));
+						if(it.first.first != *e_it2)
+						{
+							continue;
+						}
+						else
+						{
+							const auto &w1 = it.first.second;
+							auto temp_pair = std::make_pair(*e_it, w1);
+							if(wse_symbols.find(temp_pair) != wse_symbols.end())
+							{
+								const auto &ws_lit = wse_symbols[temp_pair];
+								std::cout << "RF -> WS: " << it.second.get_identifier() << " -> "
+										  << ws_lit.get_identifier() << "\n";
+								add_constraint(equation, or_exprt(not_exprt(it.second), ws_lit), "rf -> ws", (*e_it)->source);
+							}
+						}
+					}
 					break;
 				}
 			}
@@ -334,6 +393,22 @@ void memory_model_sct::write_serialization_external(
 				{
 					meet_flag = true;
 					add_constraint(equation, before(*w_it1, *w_it2), "coi", (*w_it1)->source);
+					
+					// __FHY_ADD_BEGIN__
+					std::string e1_str = id2string(id(*w_it1));
+					std::string e2_str = id2string(id(*w_it2));
+					if(!e1_str.empty())
+					{
+						e1_str = e1_str.substr(e1_str.find_first_not_of("c::"), e1_str.length());
+					}
+					if(!e2_str.empty()){
+						e2_str = e2_str.substr(e2_str.find_first_not_of("c::"), e2_str.length());
+					}
+					
+					equation.oclt_type_table.insert(
+							std::make_pair(std::make_pair(e1_str, e2_str), std::make_pair("", "coi")));
+					// __FHY_ADD_END__
+					
 					std::cout << "COI: (" << (*w_it1)->ssa_lhs.get_identifier()
 							  << ", "<< (*w_it2)->ssa_lhs.get_identifier() << ") \n";
 					continue;
@@ -342,7 +417,46 @@ void memory_model_sct::write_serialization_external(
 				// ws is a total order, no two elements have the same rank
 				// s -> w_evt1 before w_evt2; !s -> w_evt2 before w_evt1
 				
-				symbol_exprt s=nondet_bool_symbol("ws-ext");
+				// __FHY_ADD_BEGIN__
+//				std::string var_name = address(*w_it1).c_str();
+//				var_name = var_name.substr(var_name.find_first_not_of("c::"), var_name.length());
+//				if(var_name.find("__CPROVER_") != std::string::npos){
+//					var_name = var_name.substr(var_name.find_first_not_of("__CPROVER_"), var_name.length());
+//				}
+//				symbol_exprt s;
+//				std::string w1_str = (*w_it1)->ssa_lhs.get_identifier().c_str();
+//				w1_str = w1_str.substr(w1_str.find_last_not_of('#'), w1_str.length());
+//
+//				std::string w2_str = (*w_it2)->ssa_lhs.get_identifier().c_str();
+//				w2_str = w2_str.substr(w2_str.find_last_not_of('#'), w2_str.length());
+//				std::string ws_lit = "wse_" + var_name + "_" + w1_str + "_" + w2_str;
+//				s = symbol_exprt(ws_lit, bool_typet());
+				symbol_exprt s = symbol_exprt(nondet_bool_symbol("ws-ext"));
+				std::string ws_lit = s.get_identifier().c_str();
+				
+				wse_symbols[std::make_pair(*w_it1,*w_it2)] = s;
+				
+				std::cout << "COE: (" << (*w_it1)->ssa_lhs.get_identifier()
+						  << ", "<< (*w_it2)->ssa_lhs.get_identifier() << ") \n";
+				
+				std::string e1_str = id2string(id(*w_it1));
+				std::string e2_str = id2string(id(*w_it2));
+				if(!e1_str.empty())
+				{
+					e1_str = e1_str.substr(e1_str.find_first_not_of("c::"), e1_str.length());
+				}
+				if(!e2_str.empty())
+				{
+					e2_str = e2_str.substr(e2_str.find_first_not_of("c::"), e2_str.length());
+				}
+				
+				equation.oclt_type_table.insert(
+						std::make_pair(std::make_pair(e1_str, e2_str), std::make_pair(ws_lit, "coe")));
+				
+				std::string not_ws_lit = "(not " + ws_lit + ")";
+				equation.oclt_type_table.insert(
+						std::make_pair(std::make_pair(e2_str, e1_str), std::make_pair(not_ws_lit, "coe")));
+				// __FHY_ADD_END__
 				
 				// write-to-write edge
 				add_constraint(
