@@ -194,14 +194,14 @@ irep_idt partial_order_concurrencyt::rw_clock_id(
 //  else
 //    assert(false);
 	
-	// __FHY_ADD_BEGIN__
+	//// __FHY_ADD_BEGIN__
 	if(event->is_shared_write())
 		return id2string(id(event))+"$wclk";
 	else if(event->is_shared_read())
 		return id2string(id(event))+"$rclk";
 	else
 		assert(false);
-	// __FHY_ADD_END__
+	//// __FHY_ADD_END__
 	
 	return "";
 }
@@ -238,13 +238,13 @@ symbol_exprt partial_order_concurrencyt::clock(
 	else if(event->is_spawn())
 	{
 		assert(is_spawn(event));
-		// __FHY_ADD_BEGIN__
+		//// __FHY_ADD_BEGIN__
 //		identifier=
 //				"t"+i2string(event->source.thread_nr+1)+"$"+
 //				i2string(numbering[event])+"$spwnclk$"+i2string(axiom);
 		identifier = "t"+i2string(event->source.thread_nr+1)+"$"+
 				i2string(numbering[event])+"$spwnclk";
-		// __FHY_ADD_END__
+		//// __FHY_ADD_END__
 	}
 	else
 		assert(false);

@@ -43,7 +43,7 @@ public:
 	{
 	}
 	
-	// __FHY_ADD_BEGIN__
+	//// __FHY_ADD_BEGIN__
 	smt2_dect(
 			const namespacet &_ns,
 			const std::string &_benchmark,
@@ -57,7 +57,7 @@ public:
 			smt2_convt(_ns, _benchmark, _notes, _logic, _solver, temp_out, _oclt_symbols)
 	{
 	}
-	// __FHY_ADD_END__
+	//// __FHY_ADD_END__
 	
 	virtual resultt dec_solve();
 	virtual std::string decision_procedure_text() const;

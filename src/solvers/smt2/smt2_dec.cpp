@@ -41,18 +41,18 @@ Function: smt2_dect::decision_procedure_text
 
 std::string smt2_dect::decision_procedure_text() const
 {
-  return "SMT2 "+logic+
-    (use_FPA_theory?" (with FPA)":"")+
-    " using "+
-    (solver==GENERIC?"Generic":
-     solver==BOOLECTOR?"Boolector":
-     solver==CVC3?"CVC3":
-     solver==CVC4?"CVC3":
-     solver==MATHSAT?"MathSAT":
-     solver==OPENSMT?"OpenSMT":
-     solver==YICES?"Yices":
-     solver==Z3?"Z3":
-     "(unknown)");
+	return "SMT2 "+logic+
+		   (use_FPA_theory?" (with FPA)":"")+
+		   " using "+
+		   (solver==GENERIC?"Generic":
+			solver==BOOLECTOR?"Boolector":
+			solver==CVC3?"CVC3":
+			solver==CVC4?"CVC3":
+			solver==MATHSAT?"MathSAT":
+			solver==OPENSMT?"OpenSMT":
+			solver==YICES?"Yices":
+			solver==Z3?"Z3":
+			"(unknown)");
 }
 
 /*******************************************************************\
@@ -69,12 +69,12 @@ Function: smt2_temp_filet::smt2_temp_filet
 
 smt2_temp_filet::smt2_temp_filet()
 {
-  temp_out_filename=get_temporary_file("smt2_dec_out_", "");
-
-  temp_out.open(
-    temp_out_filename.c_str(),
-    std::ios_base::out | std::ios_base::trunc
-  );
+	temp_out_filename=get_temporary_file("smt2_dec_out_", "");
+	
+	temp_out.open(
+			temp_out_filename.c_str(),
+			std::ios_base::out | std::ios_base::trunc
+	);
 }
 
 /*******************************************************************\
@@ -91,13 +91,13 @@ Function: smt2_temp_filet::~smt2_temp_filet
 
 smt2_temp_filet::~smt2_temp_filet()
 {
-  temp_out.close();
-
-  if(temp_out_filename!="")
-    unlink(temp_out_filename.c_str());
-
-  if(temp_result_filename!="")
-    unlink(temp_result_filename.c_str());
+	temp_out.close();
+	
+	if(temp_out_filename!="")
+		unlink(temp_out_filename.c_str());
+	
+	if(temp_result_filename!="")
+		unlink(temp_result_filename.c_str());
 }
 
 /*******************************************************************\
@@ -114,42 +114,49 @@ Function: smt2_dect::dec_solve
 
 decision_proceduret::resultt smt2_dect::dec_solve()
 {
-  // this closes the SMT2 file
-  write_footer();
-  temp_out.close();
-
-  temp_result_filename=
-    get_temporary_file("smt2_dec_result_", "");
-
-  std::string command;
-
-  switch(solver)
-  {
-  case BOOLECTOR:
-    command = "boolector --smt2 "
-            + temp_out_filename
-            + " -m --output "
-            + temp_result_filename;
-    break;
-
-  case CVC3:
-    command = "cvc3 +model -lang smtlib -output-lang smtlib "
-            + temp_out_filename
-            + " > "
-            + temp_result_filename;
-    break;
-
-  case CVC4:
-    command = "cvc4 -L smt2 "
-            + temp_out_filename
-            + " > "
-            + temp_result_filename;
-    break;
-
-  case MATHSAT:
-    // The options below were recommended by Alberto Griggio
-    // on 10 July 2013
-    command = "mathsat -input=smt2 \
+	// this closes the SMT2 file
+	write_footer();
+	temp_out.close();
+	
+	temp_result_filename=
+			get_temporary_file("smt2_dec_result_", "");
+	
+	std::string command;
+	
+	//// __FHY_ADD_BEGIN__
+	char buffer[64];
+	getcwd(buffer, 64);
+	std::string z3_path = buffer;
+	z3_path += "/z3-191215";
+	//// __FHY_ADD_END__
+	
+	switch(solver)
+	{
+		case BOOLECTOR:
+			command = "boolector --smt2 "
+					  + temp_out_filename
+					  + " -m --output "
+					  + temp_result_filename;
+			break;
+		
+		case CVC3:
+			command = "cvc3 +model -lang smtlib -output-lang smtlib "
+					  + temp_out_filename
+					  + " > "
+					  + temp_result_filename;
+			break;
+		
+		case CVC4:
+			command = "cvc4 -L smt2 "
+					  + temp_out_filename
+					  + " > "
+					  + temp_result_filename;
+			break;
+		
+		case MATHSAT:
+			// The options below were recommended by Alberto Griggio
+			// on 10 July 2013
+			command = "mathsat -input=smt2 \
  -preprocessor.toplevel_propagation=true \
  -preprocessor.simplification=7 \
  -dpll.branching_random_frequency=0.01 \
@@ -163,51 +170,54 @@ decision_proceduret::resultt smt2_dect::dec_solve()
  -theory.fp.mode=1 \
  -theory.fp.bit_blast_mode=2 \
  -theory.arr.mode=1"
-              " < "+temp_out_filename
-            + " > "+temp_result_filename;
-    break;
+					  " < "+temp_out_filename
+					  + " > "+temp_result_filename;
+			break;
+		
+		case OPENSMT:
+			command = "opensmt "
+					  + temp_out_filename
+					  + " > "
+					  + temp_result_filename;
+			break;
+		
+		
+		case YICES:
+			//    command = "yices -smt -e "   // Calling convention for older versions
+			command = "yices-smt2 "  //  Calling for 2.2.1
+					  + temp_out_filename
+					  + " > "
+					  + temp_result_filename;
+			break;
+		
+		case Z3:
+			//// __FHY_ADD_BEGIN__
+			command = z3_path
+					  + " -smt2 "
+					  + temp_out_filename
+					  + " > "
+					  + temp_result_filename;
+			//// __FHY_ADD_END__
+			break;
+		
+		default:
+			assert(false);
+	}
 
-  case OPENSMT:
-    command = "opensmt "
-            + temp_out_filename
-            + " > "
-            + temp_result_filename;
-    break;
-
-
-  case YICES:
-    //    command = "yices -smt -e "   // Calling convention for older versions
-    command = "yices-smt2 "  //  Calling for 2.2.1
-            + temp_out_filename
-            + " > "
-            + temp_result_filename;
-    break;
-
-  case Z3:
-    command = "z3 -smt2 "
-            + temp_out_filename
-            + " > "
-            + temp_result_filename;
-    break;
-
-  default:
-    assert(false);
-  }
-
-  #if defined(__linux__) || defined(__APPLE__)
-  command+=" 2>&1";
-  #endif
-
-  int res=system(command.c_str());
-  if(res<0)
-  {
-    error() << "error running SMT2 soler" << eom;
-    return decision_proceduret::D_ERROR;
-  }
-
-  std::ifstream in(temp_result_filename.c_str());
-  
-  return read_result(in);
+#if defined(__linux__) || defined(__APPLE__)
+	command+=" 2>&1";
+#endif
+	
+	int res=system(command.c_str());
+	if(res<0)
+	{
+		error() << "error running SMT2 soler" << eom;
+		return decision_proceduret::D_ERROR;
+	}
+	
+	std::ifstream in(temp_result_filename.c_str());
+	
+	return read_result(in);
 }
 
 /*******************************************************************\
@@ -224,54 +234,54 @@ Function: smt2_dect::read_result
 
 decision_proceduret::resultt smt2_dect::read_result(std::istream &in)
 {
-  std::string line;
-  decision_proceduret::resultt res=D_ERROR;
-
-  boolean_assignment.clear();
-  boolean_assignment.resize(no_boolean_variables, false);
-
-  typedef hash_map_cont<irep_idt, irept, irep_id_hash> valuest;
-  valuest values;
-
-  while(in)
-  {
-    irept parsed=smt2irep(in);
-    
-    if(parsed.id()=="sat")
-      res=D_SATISFIABLE;
-    else if(parsed.id()=="unsat")
-      res=D_UNSATISFIABLE;
-    else if(parsed.id()=="" &&
-            parsed.get_sub().size()==1 &&
-            parsed.get_sub().front().get_sub().size()==2)
-    {
-      const irept &s0=parsed.get_sub().front().get_sub()[0];
-      const irept &s1=parsed.get_sub().front().get_sub()[1];
-
-      // ( (B0 true) )
-      // ( (|c::__CPROVER_pipe_count#1| (_ bv0 32)) )
-      
-      values[s0.id()]=s1;
-    }
-  }
-
-  for(identifier_mapt::iterator
-      it=identifier_map.begin();
-      it!=identifier_map.end();
-      it++)
-  {
-    std::string conv_id=convert_identifier(it->first);
-    const irept &value=values[conv_id];
-    it->second.value=parse_rec(value, it->second.type);
-  }
-
-  // Booleans
-  for(unsigned v=0; v<no_boolean_variables; v++)
-  {
-    const irept &value=values["B"+i2string(v)];
-    boolean_assignment[v]=(value.id()==ID_true);
-  }
-
-  return res;
+	std::string line;
+	decision_proceduret::resultt res=D_ERROR;
+	
+	boolean_assignment.clear();
+	boolean_assignment.resize(no_boolean_variables, false);
+	
+	typedef hash_map_cont<irep_idt, irept, irep_id_hash> valuest;
+	valuest values;
+	
+	while(in)
+	{
+		irept parsed=smt2irep(in);
+		
+		if(parsed.id()=="sat")
+			res=D_SATISFIABLE;
+		else if(parsed.id()=="unsat")
+			res=D_UNSATISFIABLE;
+		else if(parsed.id()=="" &&
+				parsed.get_sub().size()==1 &&
+				parsed.get_sub().front().get_sub().size()==2)
+		{
+			const irept &s0=parsed.get_sub().front().get_sub()[0];
+			const irept &s1=parsed.get_sub().front().get_sub()[1];
+			
+			// ( (B0 true) )
+			// ( (|c::__CPROVER_pipe_count#1| (_ bv0 32)) )
+			
+			values[s0.id()]=s1;
+		}
+	}
+	
+	for(identifier_mapt::iterator
+				it=identifier_map.begin();
+		it!=identifier_map.end();
+		it++)
+	{
+		std::string conv_id=convert_identifier(it->first);
+		const irept &value=values[conv_id];
+		it->second.value=parse_rec(value, it->second.type);
+	}
+	
+	// Booleans
+	for(unsigned v=0; v<no_boolean_variables; v++)
+	{
+		const irept &value=values["B"+i2string(v)];
+		boolean_assignment[v]=(value.id()==ID_true);
+	}
+	
+	return res;
 }
 

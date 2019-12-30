@@ -140,23 +140,10 @@ void memory_model_baset::read_from_backup(symex_target_equationt &equation)
 				bool is_rfi=
 						w->source.thread_nr==r->source.thread_nr;
 				
-				// __FHY_ADD_BEGIN__
-//				std::string var_name = address(r).c_str();
-//				var_name = var_name.substr(var_name.find_first_not_of("c::"), var_name.length());
-//				if(var_name.find("__CPROVER_") != std::string::npos){
-//					var_name = var_name.substr(var_name.find_first_not_of("__CPROVER_"), var_name.length());
-//				}
-//				symbol_exprt s;
-//				std::string r_str = r->ssa_lhs.get_identifier().c_str();
-//				r_str = r_str.substr(r_str.find_last_not_of('#'), r_str.length());
-//
-//				std::string w_str = w->ssa_lhs.get_identifier().c_str();
-//				w_str = w_str.substr(w_str.find_last_not_of('#'), w_str.length());
-//				std::string rf_lit = "rf_" + var_name + "_" + r_str + "_" + w_str;
-//				s = symbol_exprt(rf_lit, bool_typet());
+				//// __FHY_ADD_BEGIN__
 				symbol_exprt s = symbol_exprt(nondet_bool_symbol("rf"));
 				std::string rf_lit = s.get_identifier().c_str();
-				// __FHY_ADD_END__
+				//// __FHY_ADD_END__
 				
 				// record the symbol
 				choice_symbols[std::make_pair(r, w)]=s;
@@ -175,7 +162,8 @@ void memory_model_baset::read_from_backup(symex_target_equationt &equation)
 					exprt cond=implies_exprt(s, before(w, r));
 					add_constraint(equation, cond, "rf-order", r->source);
 					
-					// __FHY_ADD_BEGIN__
+					//// __FHY_ADD_BEGIN__
+					// get identifier of write and read event && remove prefix "c::"
 					std::string e1_str = id2string(id(w));
 					std::string e2_str = id2string(id(r));
 					if(!e1_str.empty())
@@ -188,7 +176,7 @@ void memory_model_baset::read_from_backup(symex_target_equationt &equation)
 					}
 					equation.oclt_type_table.insert(
 							std::make_pair(std::make_pair(e1_str, e2_str), std::make_pair(rf_lit, "rf-order")));
-					// __FHY_ADD_END__
+					//// __FHY_ADD_END__
 				}
 				
 				// added by ylz
@@ -356,23 +344,10 @@ void memory_model_baset::read_from_item(const event_it& r, symex_target_equation
 			if (thread_num > 10 && r->source.thread_nr >= symmetry_start && r->source.thread_nr < w->source.thread_nr)
 				continue;
 			
-			// __FHY_ADD_BEGIN__
-//			std::string var_name = address(r).c_str();
-//			var_name = var_name.substr(var_name.find_first_not_of("c::"), var_name.length());
-//			if(var_name.find("__CPROVER_") != std::string::npos){
-//				var_name = var_name.substr(var_name.find_first_not_of("__CPROVER_"), var_name.length());
-//			}
-//			symbol_exprt s;
-//			std::string r_str = r->ssa_lhs.get_identifier().c_str();
-//			r_str = r_str.substr(r_str.find_last_not_of('#'), r_str.length());
-//
-//			std::string w_str = w->ssa_lhs.get_identifier().c_str();
-//			w_str = w_str.substr(w_str.find_last_not_of('#'), w_str.length());
-//			std::string rf_lit = "rf_" + var_name + "_" + r_str + "_" + w_str;
-//			s = symbol_exprt(rf_lit, bool_typet());
+			//// __FHY_ADD_BEGIN__
 			symbol_exprt s = symbol_exprt(nondet_bool_symbol("rf"));
 			std::string rf_lit = s.get_identifier().c_str();
-			// __FHY_ADD_END__
+			//// __FHY_ADD_END__
 			
 			// record the symbol
 			choice_symbols[std::make_pair(r, w)]=s;
@@ -392,8 +367,9 @@ void memory_model_baset::read_from_item(const event_it& r, symex_target_equation
 			// follows from rf_some
 			add_constraint(equation, read_from, "rf", r->source);
 			add_constraint(equation, or_exprt(not_exprt(s), before(w, r)), "rf-order", r->source);
-			// __FHY_ADD_BEGIN__
-			std::cout << "RFE: (" << w->ssa_lhs.get_identifier() << ": " << r->ssa_lhs.get_identifier() << " )\n";
+			
+			//// __FHY_ADD_BEGIN__
+//			std::cout << "RFE: (" << w->ssa_lhs.get_identifier() << ": " << r->ssa_lhs.get_identifier() << " )\n";
 			
 			std::string e1_str = id2string(id(w));
 			std::string e2_str = id2string(id(r));
@@ -401,12 +377,13 @@ void memory_model_baset::read_from_item(const event_it& r, symex_target_equation
 			{
 				e1_str = e1_str.substr(e1_str.find_first_not_of("c::"), e1_str.length());
 			}
-			if(!e2_str.empty()){
+			if(!e2_str.empty())
+			{
 				e2_str = e2_str.substr(e2_str.find_first_not_of("c::"), e2_str.length());
 			}
 			equation.oclt_type_table.insert(
 					std::make_pair(std::make_pair(e1_str, e2_str), std::make_pair(rf_lit, "rf-order")));
-			// __FHY_ADD_END__
+			//// __FHY_ADD_END__
 			
 			rf_some_operands.push_back(s);
 		}
@@ -424,23 +401,10 @@ void memory_model_baset::read_from_item(const event_it& r, symex_target_equation
 		{
 			const event_it w=*w_it;
 			
-			// __FHY_ADD_BEGIN__
-//			std::string var_name = address(r).c_str();
-//			var_name = var_name.substr(var_name.find_first_not_of("c::"), var_name.length());
-//			if(var_name.find("__CPROVER_") != std::string::npos){
-//				var_name = var_name.substr(var_name.find_first_not_of("__CPROVER_"), var_name.length());
-//			}
-//			symbol_exprt s;
-//			std::string r_str = r->ssa_lhs.get_identifier().c_str();
-//			r_str = r_str.substr(r_str.find_last_not_of('#'), r_str.length());
-//
-//			std::string w_str = w->ssa_lhs.get_identifier().c_str();
-//			w_str = w_str.substr(w_str.find_last_not_of('#'), w_str.length());
-//			std::string rf_lit = "rf_" + var_name + "_" + r_str + "_" + w_str;
-//			s = symbol_exprt(rf_lit, bool_typet());
+			//// __FHY_ADD_BEGIN__
 			symbol_exprt s = symbol_exprt(nondet_bool_symbol("rf"));
 			std::string rf_lit = s.get_identifier().c_str();
-			// __FHY_ADD_END__
+			//// __FHY_ADD_END__
 			
 			// record the symbol
 			choice_symbols[std::make_pair(r, w)]=s;

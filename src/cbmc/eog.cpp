@@ -170,7 +170,8 @@ void eog::find_cycle_from_node(node* v)
 		}
 		
 		
-		// __FHY_ADD_BEGIN__
+		//// __FHY_ADD_BEGIN__
+		// output traces and kernel reasons which resulting in the circle
 		std::cout << ++reason_num << " trace: ";
 		for (unsigned i = j; i < m_trace.size(); i++) {
 			std::cout << m_trace[i]->m_event->ssa_lhs.get_identifier() << "->";
@@ -182,7 +183,7 @@ void eog::find_cycle_from_node(node* v)
 			std::cout << ", ";
 		}
 		std::cout << "\n";
-		// __FHY_ADD_END__
+		//// __FHY_ADD_END__
 
 		m_reasons.push_back(reason);
 		return;

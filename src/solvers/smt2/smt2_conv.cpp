@@ -682,10 +682,10 @@ void smt2_convt::convert_address_of_rec(
 		const exprt &struct_op=member_expr.struct_op();
 		const typet &struct_op_type=ns.follow(struct_op.type());
 		
-		if(struct_op_type.id()==ID_struct)
+		if(struct_op_type.id()==ID_struct || struct_op_type.id()==ID_struct_tag)
 		{
 			const struct_typet &struct_type=
-					to_struct_type(struct_op_type);
+					to_struct_type(ns.follow(struct_op_type));
 			
 			const irep_idt &component_name=
 					member_expr.get_component_name();
@@ -944,19 +944,6 @@ std::string smt2_convt::convert_identifier(const irep_idt &identifier)
 				result+=ch;
 		}
 	}
-	
-//	// __FHY_ADD_BEGIN__
-//	// remove prefix "c::"
-//	result = result.substr(result.find_first_not_of("c::"), result.length());
-//	// remove prefix "__CPROVER_"
-//	result = result.substr(result.find_first_not_of("__CPROVER_"), result.length());
-//	//  remove guards' prefix "goto_symex::&92;"
-//	int position = result.find_last_of(';');
-//	if(position != std::string::npos){
-//		result = result.substr(position+1, result.length());
-//	}
-//	std::cout <<"id: " << result << "\n";
-//	// __FHY_ADD_END__
 	return result;
 }
 /*******************************************************************\
@@ -1170,7 +1157,7 @@ void smt2_convt::convert_expr(const exprt &expr)
 		assert(expr.type().id()==ID_bool);
 		assert(expr.operands().size()>=2);
 		
-		// __FHY_ADD_BEGIN__
+		//// __FHY_ADD_BEGIN__
 		out << "(" << expr.id();
 		for(auto it = expr.operands().begin(); it != expr.operands().end(); ++it){
 			out << " ";
@@ -1185,7 +1172,7 @@ void smt2_convt::convert_expr(const exprt &expr)
 			}
 		}
 		out << ")";
-		// __FHY_ADD_END__
+		//// __FHY_ADD_END__
 		
 	}
 	else if(expr.id()==ID_implies)
@@ -1204,7 +1191,7 @@ void smt2_convt::convert_expr(const exprt &expr)
 		assert(expr.type().id()==ID_bool);
 		assert(expr.operands().size()==1);
 		
-		// __FHY_ADD_BEGIN__
+		//// __FHY_ADD_BEGIN__
 		if(expr.op0().id() == ID_ge && expr.op0().op0().type().id() == ID_oc){
 			convert_expr(expr.op0());
 		} else{
@@ -1212,9 +1199,9 @@ void smt2_convt::convert_expr(const exprt &expr)
 			convert_expr(expr.op0());
 			out << ")";
 		}
-		// __FHY_ADD_END__
+		//// __FHY_ADD_END__
 	}
-		// __FHY_ADD_BEGIN__
+		//// __FHY_ADD_BEGIN__
 	else if(expr.id() == ID_equal){
 		const equal_exprt &equal_expr = to_equal_expr(expr);
 		assert(equal_expr.operands().size()==2);
@@ -1274,7 +1261,7 @@ void smt2_convt::convert_expr(const exprt &expr)
 			out << "))";
 		}
 	}
-		// __FHY_ADD_END__
+		//// __FHY_ADD_END__
 		
 		// else if(expr.id()==ID_equal ||
 		//         expr.id()==ID_notequal)
@@ -1342,13 +1329,13 @@ void smt2_convt::convert_expr(const exprt &expr)
 			expr.id()==ID_ge ||
 			expr.id()==ID_gt)
 	{
-		// __FHY_ADD_BEGIN__
+		//// __FHY_ADD_BEGIN__
 		if(expr.op0().type().id() == ID_oc){
 			if(expr.id() != ID_lt && expr.id() != ID_ge){
 				fprintf(stderr, "Oc type error.\n");
 			}
 		}
-		// __FHY_ADD_END__
+		//// __FHY_ADD_END__
 		convert_relation(expr);
 	}
 	else if(expr.id()==ID_plus)
@@ -2546,7 +2533,7 @@ Function: smt2_convt::convert_struct
 
 void smt2_convt::convert_struct(const struct_exprt &expr)
 {
-	const struct_typet &struct_type=to_struct_type(expr.type());
+	const struct_typet &struct_type=to_struct_type(ns.follow(expr.type()));
 	
 	const struct_typet::componentst &components=
 			struct_type.components();
@@ -2987,7 +2974,7 @@ void smt2_convt::convert_relation(const exprt &expr)
 		out << " ";
 		convert_expr(expr.op1());
 	}
-		// __FHY_ADD_BEGIN__
+		//// __FHY_ADD_BEGIN__
 	else if(op_type.id() == ID_oc)
 	{
 		assert(expr.id() == ID_lt || expr.id() == ID_ge);
@@ -3000,70 +2987,79 @@ void smt2_convt::convert_relation(const exprt &expr)
 		 * RF: 	oclt-rf
 		 */
 		
-		std::string e1_str = from_expr(ns, "", expr.op0());
-		std::string e2_str = from_expr(ns, "", expr.op1());
-		// relation between spwn  and other element is program order
-		if( e1_str.find("spwnclk") != std::string::npos || e2_str.find("spwnclk") != std::string::npos )
-		{
-			out << "oclt-po ";
-			convert_expr(expr.op0());
-			out << " ";
-			convert_expr(expr.op1());
-		}
-		else
-		{
-			e1_str = e1_str.substr(0, e1_str.find_first_of('$'));
-			e2_str = e2_str.substr(0, e2_str.find_first_of('$'));
-			std::cout << "====OCLT Relation: " << e1_str << ": " << e2_str << "\n";
-			oclt_ite it = oclt_type_table.find(std::make_pair(e1_str,e2_str));
-			assert(it!= oclt_type_table.end());
-			if(it->second.second == "po")
-			{
-				out << "oclt-po ";
+//		std::string e1_str = from_expr(ns, "", expr.op0());
+//		std::string e2_str = from_expr(ns, "", expr.op1());
+//		// relation between spwn  and other element is program order
+//		if( e1_str.find("spwnclk") != std::string::npos || e2_str.find("spwnclk") != std::string::npos )
+//		{
+//			out << "oclt-po ";
+//			convert_expr(expr.op0());
+//			out << " ";
+//			convert_expr(expr.op1());
+//		}
+//		else
+//		{
+//			e1_str = e1_str.substr(0, e1_str.find_first_of('$'));
+//			e2_str = e2_str.substr(0, e2_str.find_first_of('$'));
+//			std::cout << "====OCLT Relation: " << e1_str << " : " << e2_str << "\n";
+//			oclt_ite it = oclt_type_table.find(std::make_pair(e1_str, e2_str));
+//			assert(it!= oclt_type_table.end());
+//			if(it->second.second == "po")
+//			{
+//				out << "oclt-po ";
+//				convert_expr(expr.op0());
+//				out << " ";
+//				convert_expr(expr.op1());
+//			}
+//			else if(it->second.second == "pof")
+//			{
+//				out << "oclt-pof ";
+//				convert_expr(expr.op0());
+//				out << " ";
+//				convert_expr(expr.op1());
+//			}
+////			else if(it->second.second == "coi")
+////			{
+////				out << "oclt-coi ";
+////				convert_expr(expr.op0());
+////				out << " ";
+////				convert_expr(expr.op1());
+////			}
+//			else if(it->second.second == "rf-order")
+//			{
+//				out << "oclt-rf ";
+//				convert_expr(expr.op0());
+//				out << " ";
+//				convert_expr(expr.op1());
+//				out << " ";
+//				out << it->second.first;
+//			}
+//			else if(it->second.second == "coe")
+//			{
+//				out << "oclt-coe ";
+//				convert_expr(expr.op0());
+//				out << " ";
+//				convert_expr(expr.op1());
+//				out << " ";
+//				out << it->second.first;
+//			}
+////			else if(it->second.second == "fr")
+////			{
+////				out << "oclt-fr ";
+////				convert_expr(expr.op0());
+////				out << " ";
+////				convert_expr(expr.op1());
+////			}
+//			else{
+				out << "oclt ";
 				convert_expr(expr.op0());
 				out << " ";
 				convert_expr(expr.op1());
-			}
-			else if(it->second.second == "pof")
-			{
-				out << "oclt-pof ";
-				convert_expr(expr.op0());
-				out << " ";
-				convert_expr(expr.op1());
-			}
-			else if(it->second.second == "coi")
-			{
-				out << "oclt-coi ";
-				convert_expr(expr.op0());
-				out << " ";
-				convert_expr(expr.op1());
-			}
-			else if(it->second.second == "rf-order")
-			{
-				out << "oclt-rf ";
-				convert_expr(expr.op0());
-				out << " ";
-				convert_expr(expr.op1());
-				out << " ";
-				out << it->second.first;
-			}
-			else if(it->second.second == "coe")
-			{
-				out << "oclt-coe ";
-				convert_expr(expr.op0());
-				out << " ";
-				convert_expr(expr.op1());
-				out << " ";
-				out << it->second.first;
-			}
-			else{
-				std::cerr << "Unsupported oclt type: " << it->second.second << "\n";
-				assert(false);
-			}
-			oclt_type_table.erase(it);
-		}
+//			}
+//			oclt_type_table.erase(it);
+//		}
 	}
-	// __FHY_ADD_END__
+		//// __FHY_ADD_END__
 	else if(op_type.id()==ID_floatbv)
 	{
 		if(use_FPA_theory)
@@ -3791,9 +3787,9 @@ void smt2_convt::convert_with(const with_exprt &expr)
 			out << ") distance?)))"; // zero_extend, bvlshr, bvor, let
 		}
 	}
-	else if(expr_type.id()==ID_struct)
+	else if(expr_type.id()==ID_struct || expr_type.id() == ID_struct_tag )
 	{
-		const struct_typet &struct_type=to_struct_type(expr_type);
+		const struct_typet &struct_type=to_struct_type(ns.follow(expr_type));
 		
 		const exprt &index=expr.op1();
 		const exprt &value=expr.op2();
@@ -4104,10 +4100,10 @@ void smt2_convt::convert_member(const member_exprt &expr)
 	const typet &struct_op_type=ns.follow(struct_op.type());
 	const irep_idt &name=member_expr.get_component_name();
 	
-	if(struct_op_type.id()==ID_struct)
+	if(struct_op_type.id()==ID_struct || struct_op_type.id() == ID_struct_tag)
 	{
 		const struct_typet &struct_type=
-				to_struct_type(struct_op_type);
+				to_struct_type(ns.follow(struct_op_type));
 		
 		if(!struct_type.has_component(name))
 			throw "failed to find struct member";
@@ -4217,7 +4213,7 @@ void smt2_convt::flatten2bv(const exprt &expr)
 	{
 		convert_expr(expr);
 	}
-	else if(type.id()==ID_struct)
+	else if(type.id()==ID_struct || type.id() == ID_struct_tag)
 	{
 		if(use_datatypes)
 		{
@@ -4227,7 +4223,7 @@ void smt2_convt::flatten2bv(const exprt &expr)
 					datatype_map.find(type)->second;
 			
 			// concatenate elements
-			const struct_typet &struct_type=to_struct_type(type);
+			const struct_typet &struct_type=to_struct_type(ns.follow(type));
 			
 			out << "(let ((?sflop ";
 			convert_expr(expr);
@@ -4332,7 +4328,7 @@ void smt2_convt::unflatten(
 			// nop, already a bv
 		}
 	}
-	else if(type.id()==ID_struct)
+	else if(type.id()==ID_struct || type.id()==ID_struct_tag)
 	{
 		if(use_datatypes)
 		{
@@ -4490,7 +4486,7 @@ void smt2_convt::set_to(const exprt &expr, bool value)
 	
 	if(!value)
 	{
-		// __FHY_ADD_BEGIN__
+		//// __FHY_ADD_BEGIN__
 		if(expr.id() == ID_ge && expr.op0().type().id() == ID_oc){
 			convert_expr(expr);
 		}
@@ -4499,7 +4495,7 @@ void smt2_convt::set_to(const exprt &expr, bool value)
 			convert_expr(expr);
 			out << ")";
 		}
-		// __FHY_ADD_END__
+		//// __FHY_ADD_END__
 	}
 	else
 		convert_expr(expr);
@@ -4838,10 +4834,10 @@ void smt2_convt::convert_type(const typet &type)
 			out << "(_ BitVec " << width << ")";
 		}
 	}
-		// __FHY_ADD_BEGIN__
+		//// __FHY_ADD_BEGIN__
 	else if(type.id() == ID_oc)
 		out << "Oc";
-		// __FHY_ADD_END__
+		//// __FHY_ADD_END__
 	else
 	{
 		throw "unsupported type: "+type.id_string();
@@ -5064,6 +5060,37 @@ void smt2_convt::find_symbols_rec(
 		{
 			recstack.insert(id);
 			find_symbols_rec(ns.follow(type), recstack);
+		}
+	}
+	else if(type.id() == ID_struct_tag)
+	{
+		const auto &struct_tag = to_struct_tag_type(type);
+		const irep_idt &id = struct_tag.get_identifier();
+		
+		//// __FHY_ADD_BEGIN__
+		//// bug fix with support of ID_struct_tag
+		if(use_datatypes && datatype_map.find(struct_tag)==datatype_map.end()){
+			const std::string smt_typename =
+					"struct." + std::to_string(datatype_map.size());
+			datatype_map[struct_tag] = smt_typename;
+		}
+		//// __FHY_ADD_END__
+		
+		if(recstack.find(id) == recstack.end())
+		{
+			recstack.insert(id);
+			find_symbols_rec(ns.follow_tag(struct_tag), recstack);
+		}
+	}
+	else if(type.id() == ID_union_tag)
+	{
+		const auto &union_tag = to_union_tag_type(type);
+		const irep_idt &id = union_tag.get_identifier();
+		
+		if(recstack.find(id) == recstack.end())
+		{
+			recstack.insert(id);
+			find_symbols_rec(ns.follow_tag(union_tag), recstack);
 		}
 	}
 }

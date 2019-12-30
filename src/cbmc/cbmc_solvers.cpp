@@ -28,6 +28,7 @@ Author: Daniel Kroening, kroening@kroening.com
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#include <util/simplify_expr.h>
 
 static time_periodt build_eog_time = current_time() - current_time();
 /*******************************************************************\
@@ -47,7 +48,6 @@ smt1_dect::solvert bmct::get_smt1_solver_type() const
 	assert(options.get_bool_option("smt1"));
 	
 	smt1_dect::solvert s = smt1_dect::GENERIC;
-	
 	if(options.get_bool_option("boolector"))
 		s = smt1_dect::BOOLECTOR;
 	else if(options.get_bool_option("mathsat"))
@@ -234,6 +234,8 @@ bool bmct::decide_default()
 	
 	time_periodt constraint_compute_time = current_time() - current_time();
 	time_periodt evaluation_time = current_time() - current_time();
+	
+	
 	int num = 0;
 	switch(rrt)
 	{
@@ -255,8 +257,8 @@ bool bmct::decide_default()
 				absolute_timet t1=current_time();
 				compute_refine_constraint(graph, constraint);
 				constraint_compute_time += current_time() - t1;
-
-//		std::cout << from_expr(equation.ns, "", constraint) << "\n";
+				
+				std::cout << from_expr(equation.ns, "", constraint) << "\n";
 				
 				// incremental algorithm
 				absolute_timet t2=current_time();
@@ -505,6 +507,14 @@ bool bmct::decide_smt2()
 				solver,
 				equation.oclt_type_table);
 		
+		//// __FHY_ADD_BEGIN__
+		// Use EOG to compute the first constraints
+		exprt init_cons;
+		compute_init_constraint(smt2_dec, init_cons);
+		simplify(init_cons, ns);
+		equation.constraint(init_cons, "", equation.SSA_steps.begin()->source);
+		//// __FHY_ADD_END__
+		
 		if(options.get_bool_option("fpa"))
 			smt2_dec.use_FPA_theory=true;
 		
@@ -558,6 +568,15 @@ void bmct::smt2_convert(
 	
 	smt2_conv.set_message_handler(get_message_handler());
 	
+	//// __FHY_ADD_BEGIN__
+	// Use EOG to compute the first constraints
+	exprt init_cons;
+	compute_init_constraint(smt2_conv, init_cons);
+	simplify(init_cons, ns);
+	equation.constraint(init_cons, "", equation.SSA_steps.begin()->source);
+	
+	//// __FHY_ADD_END__
+	
 	do_conversion(smt2_conv);
 	
 	smt2_conv.dec_solve();
@@ -566,8 +585,10 @@ void bmct::smt2_convert(
 void bmct::build_eog(eog& graph, prop_convt &prop_conv)
 {
 	graph.clear();
-	add_nodes(graph, prop_conv);absolute_timet t1=current_time();
+	add_nodes(graph, prop_conv);
+	absolute_timet t1=current_time();
 	add_program_order(graph, prop_conv);
+	
 	build_eog_time += current_time() - t1;
 	add_read_from(graph, prop_conv);
 }
@@ -687,7 +708,6 @@ void bmct::add_program_order_back1(eog& graph, prop_convt &prop_conv)
 		t_it++)
 	{
 		const event_listt &events=t_it->second;
-		
 		// iterate over relevant events in the thread
 		event_it previous=equation.SSA_steps.end();
 		
@@ -757,7 +777,7 @@ void bmct::add_program_order(eog& graph, prop_convt &prop_conv, bool trace_flag)
 			!e_it->is_verify_lock() && !e_it->is_verify_unlock() &&
 			!e_it->is_thread_join())
 			continue;
-		
+
 		if (!equation.thread_malloc && equation.aux_enable && e_it->is_aux_var())
 			continue;
 		
@@ -811,6 +831,7 @@ void bmct::add_program_order(eog& graph, prop_convt &prop_conv, bool trace_flag)
 			
 			if((*e_it)->is_memory_barrier())
 				continue;
+			
 			if ((*e_it)->is_verify_atomic_begin()) {
 				if (valid_mutex(equation)) {
 					atomic_flag = true;
@@ -875,9 +896,19 @@ void bmct::add_program_order(eog& graph, prop_convt &prop_conv, bool trace_flag)
 			if((start_flag) || (previous->atomic_section_id!=0 && previous->atomic_section_id == (*e_it)->atomic_section_id) ||
 			   array_assign)
 			{
+				//// __FHY_ADD_BEGIN__
+//				std::cout << "EPO1: " << "( " << previous->ssa_lhs.get_identifier() << " : "
+//					<< (*e_it)->ssa_lhs.get_identifier() << " )\n";
+				//// __FHY_ADD_END__
 				graph.add_edge(&(*previous), &(*(*e_it)), edge::EPO);
 			}
 			else {
+				//// __FHY_ADD_BEGIN__
+				
+//				std::cout << "PO1: " << "( " << previous->ssa_lhs.get_identifier() << " : "
+//				<< (*e_it)->ssa_lhs.get_identifier() << " )\n";
+				//// __FHY_ADD_END__
+				
 				graph.add_edge(&(*previous), &(*(*e_it)), edge::PO);
 			}
 			
@@ -912,6 +943,10 @@ void bmct::add_program_order(eog& graph, prop_convt &prop_conv, bool trace_flag)
 				}
 				
 				if (e_it != events.rend() && join_nodes.find((*e_it)->source.thread_nr) != join_nodes.end()) {
+					//// __FHY_ADD_BEGIN__
+//					std::cout << "PO2: " << "( " << (*e_it)->ssa_lhs.get_identifier() << " : " <<
+//						join_nodes[(*e_it)->source.thread_nr]->ssa_lhs.get_identifier() << " )\n";
+					//// __FHY_ADD_END__
 					graph.add_edge(&(*(*e_it)), &(*join_nodes[(*e_it)->source.thread_nr]), edge::PO);
 				}
 			}
@@ -982,21 +1017,21 @@ bool bmct::compute_refine_constraint(eog& graph, exprt& constraint)
 	}
 	constraint = conjunction(constraint_operands);
 
-//	std::cout << "reasons.size = " << graph.m_reasons.size() << "\n";
-//	for (unsigned i = 0; i < graph.m_reasons.size(); i++) {
-//		std::vector<edge*>& reason = graph.m_reasons[i];
-//
-//		std::cout << reason.size() << ": ";
-//		for (unsigned j = 0; j < reason.size(); j++) {
-//			std:: cout << equation.edge_symbol_map[reason[j]].get_identifier() << ", ";
-//		}
-//		std::cout << "\n";
-//		for (unsigned j = 0; j < reason.size(); j++) {
-//			std::cout << "(" << reason[j]->m_src->m_event->ssa_lhs.get_identifier() << ", ";
-//			std::cout << reason[j]->m_dst->m_event->ssa_lhs.get_identifier() << "), ";
-//		}
-//		std::cout << "\n";
-//	}
+	std::cout << "reasons.size = " << graph.m_reasons.size() << "\n";
+	for (unsigned i = 0; i < graph.m_reasons.size(); i++) {
+		std::vector<edge*>& reason = graph.m_reasons[i];
+
+		std::cout << reason.size() << ": ";
+		for (unsigned j = 0; j < reason.size(); j++) {
+			std:: cout << equation.edge_symbol_map[reason[j]].get_identifier() << ", ";
+		}
+		std::cout << "\n";
+		for (unsigned j = 0; j < reason.size(); j++) {
+			std::cout << "(" << reason[j]->m_src->m_event->ssa_lhs.get_identifier() << ", ";
+			std::cout << reason[j]->m_dst->m_event->ssa_lhs.get_identifier() << "), ";
+		}
+		std::cout << "\n";
+	}
 }
 
 
@@ -1013,12 +1048,18 @@ void bmct::compute_init_constraint(prop_convt &prop_conv, exprt& constraint)
 	for(cs_mapt::const_iterator i_it=equation.choice_symbol_map.begin();
 		i_it!=equation.choice_symbol_map.end(); i_it++)
 	{
+		
+		// __FHY_AD_BEGIN__
+//		std::cout << from_expr(ns, "", i_it->first) << " : ("<< i_it->second->m_src->ssa_lhs.get_identifier()
+//				<<" : " <<i_it->second->m_dst->ssa_lhs.get_identifier()<< ")\n";
+		//// __FHY_ADD_END__
+		
 		auto j_it = i_it;
 		j_it++;
 		for(; j_it!=equation.choice_symbol_map.end(); j_it++)
 		{
 			if (i_it->second->m_src != j_it->second->m_src && i_it->second->m_dst != j_it->second->m_dst){
-//				std::cout << i_it->first.get_identifier() << " " << j_it->first.get_identifier() << "\n";
+//				std::cout << "RF: "<< i_it->first.get_identifier() << " " << j_it->first.get_identifier() << "\n";
 				
 				symex_target_equationt::eq_edge* rf1 = i_it->second;
 				symex_target_equationt::eq_edge* rf2 = j_it->second;
@@ -1039,8 +1080,8 @@ void bmct::compute_init_constraint(prop_convt &prop_conv, exprt& constraint)
 	
 	constraint = conjunction(constraint_operands);
 	
-	std::cout << equation.choice_symbol_map.size() << " =======\n";
-	std::cout << "num = " << num << "\n";
+//	std::cout << equation.choice_symbol_map.size() << " =======\n";
+//	std::cout << "num = " << num << "\n";
 //	std::cout << from_expr(ns, "", constraint) << "\n\n";
 	
 	graph.clear();

@@ -330,7 +330,7 @@ public:
   typedef std::list<SSA_stept> SSA_stepst;
   SSA_stepst SSA_steps;
 	
-  // __FHY_ADD_BEGIN__
+  //// __FHY_ADD_BEGIN__
   /*
    * Every element in oclt_symbolt has form:
    * <<write_event_identifier, read_event_identifier>, <implies_literal.to_string(), oclt_type>> for example:
@@ -339,7 +339,7 @@ public:
    */
   typedef std::multimap<std::pair<std::string, std::string>, std::pair<std::string, std::string>> oclt_symbolt;
   oclt_symbolt oclt_type_table;
-  // __FHY_ADD_END__
+  //// __FHY_ADD_END__
   
   // ylz: for build eog
   class eq_edge{

@@ -86,7 +86,7 @@ public:
 		write_header();
 	}
 	
-	// __FHY_ADD_BEGIN__
+	//// __FHY_ADD_BEGIN__
 	smt2_convt(
 			const namespacet &_ns,
 			const std::string &_benchmark,
@@ -147,7 +147,7 @@ public:
 		this->oclt_type_table = _oclt_symbols;
 		write_header();
 	}
-	// __FHY_ADD_END__
+	//// __FHY_ADD_END__
 	
 	virtual ~smt2_convt() { }
 	virtual resultt dec_solve();
@@ -174,11 +174,17 @@ protected:
 	bvt assumptions;
 	boolbv_widtht boolbv_width;
 	
-	// __FHY_ADD_BEGIN__
+	//// __FHY_ADD_BEGIN__
+	/*
+	 * oclt_symbolt:
+	 * < <event1_identifier, event2_identifier>, <relation type, literal>> , for example:
+	 * 		RF: < <wevent_clk, read_clk>, <"rf1", "rf-order"> >
+	 * 		PO: < <event1_clk, event2_clk>, <"", "po"> >
+	 */
 	typedef std::multimap<std::pair<std::string, std::string>, std::pair<std::string, std::string>> oclt_symbolt;
 	typedef std::multimap<std::pair<std::string, std::string>, std::pair<std::string, std::string>>::iterator oclt_ite;
 	oclt_symbolt oclt_type_table;
-	// __FHY_ADD_END__
+	//// __FHY_ADD_END__
 	
 	void write_header();
 	void write_footer();

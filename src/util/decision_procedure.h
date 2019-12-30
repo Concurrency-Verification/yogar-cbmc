@@ -11,9 +11,9 @@ Author: Daniel Kroening, kroening@kroening.com
 
 #include "message.h"
 
-// __FHY_ADD_BEGIN__
+//// __FHY_ADD_BEGIN__
 #include <goto-symex/symex_target_equation.h>
-// __FHY_ADD_END__
+//// __FHY_ADD_END__
 
 class exprt;
 class namespacet;

@@ -53,9 +53,10 @@ int main(int argc, const char **argv)
       count++;
     }
     
-    // __FHY_ADD_BEGIN__
+    //// __FHY_ADD_BEGIN__
+    //// Add ID_oc to irep_ids.h
     std::cout << "#define ID_oc dstring(" << count << ", 0)";
-    // __FHY_ADD_END__
+    //// __FHY_ADD_END__
     std::cout << std::endl;
     std::cout << "#endif" << std::endl;
   }

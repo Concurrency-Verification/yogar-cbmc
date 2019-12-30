@@ -433,9 +433,9 @@ Function: prop_conv_solvert::convert_rest
 literalt prop_conv_solvert::convert_rest(const exprt &expr)
 {
 	// fall through
-	// __FHY_ADD_BEGIN__
+	//// __FHY_ADD_BEGIN__
 //  ignoring(expr);
-	// __FHY_ADD_END__
+	//// __FHY_ADD_END__
 	return prop.new_variable();
 }
 
